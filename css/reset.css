@@ -1,0 +1,53 @@
+/* ============================================
+   RESET.CSS - Zera estilos padrão dos navegadores
+   ============================================
+   Isso garante que o Chrome, Firefox e Edge
+   mostrem nossa página EXATAMENTE igual.
+   ============================================ */
+
+/* Seleciona TODOS os elementos da página */
+* {
+    margin: 0;                    /* Remove margens padrão */
+    padding: 0;                   /* Remove espaçamentos internos padrão */
+    box-sizing: border-box;       /* Faz a largura incluir borda e padding */
+}
+
+/* Configurações da página inteira */
+html, body {
+    height: 100%;                 /* Ocupa 100% da altura da tela */
+    font-family: 'Inter', sans-serif; /* Fonte padrão (vamos importar do Google) */
+    font-size: 16px;              /* Tamanho base da fonte */
+    color: #2d3748;               /* Cor do texto padrão */
+    background-color: #f7fafc;    /* Cor de fundo cinza bem claro */
+}
+
+/* Remove estilos de listas (bolinhas e números) */
+ul, ol {
+    list-style: none;
+}
+
+/* Remove sublinhado de links */
+a {
+    text-decoration: none;
+    color: inherit;               /* Herda a cor do elemento pai */
+}
+
+/* Padroniza botões */
+button {
+    border: none;
+    background: none;
+    cursor: pointer;              /* Mão ao passar o mouse */
+    font-family: inherit;         /* Usa a mesma fonte do resto */
+}
+
+/* Padroniza inputs */
+input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Imagens nunca ultrapassam o container */
+img {
+    max-width: 100%;
+    display: block;
+}

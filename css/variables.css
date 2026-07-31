@@ -1,0 +1,57 @@
+/* ============================================
+   VARIABLES.CSS - Nosso catálogo de estilos
+   ============================================
+   As variáveis CSS começam com -- (dois traços)
+   e podemos usar em qualquer lugar depois.
+   ============================================ */
+
+:root {
+    /* ---------- CORES PRINCIPAIS ---------- */
+    --cor-primaria: #1a365d;           /* Azul escuro profissional */
+    --cor-primaria-clara: #2c5282;     /* Azul um pouco mais claro */
+    --cor-primaria-escura: #102a4c;    /* Azul mais escuro (hover) */
+
+    /* ---------- CORES DE STATUS ---------- */
+    --cor-receita: #38a169;            /* Verde = dinheiro entrando */
+    --cor-receita-clara: #48bb78;      /* Verde mais claro */
+    --cor-despesa: #e53e3e;            /* Vermelho = dinheiro saindo */
+    --cor-despesa-clara: #fc8181;      /* Vermelho mais claro */
+    --cor-alerta: #f6e05e;             /* Amarelo = avisos do assistente */
+    --cor-alerta-clara: #faf089;       /* Amarelo bem suave */
+
+    /* ---------- CORES NEUTRAS ---------- */
+    --cor-fundo: #f7fafc;              /* Fundo cinza bem claro */
+    --cor-fundo-branco: #ffffff;       /* Branco puro */
+    --cor-texto: #2d3748;              /* Texto principal (quase preto) */
+    --cor-texto-claro: #718096;        /* Texto secundário (cinza) */
+    --cor-borda: #e2e8f0;              /* Bordas cinza claro */
+    --cor-borda-escura: #cbd5e0;       /* Bordas um pouco mais fortes */
+
+    /* ---------- TIPOGRAFIA ---------- */
+    --fonte-principal: 'Inter', sans-serif;
+    --tamanho-titulo: 24px;
+    --tamanho-subtitulo: 18px;
+    --tamanho-texto: 14px;
+    --tamanho-pequeno: 12px;
+
+    /* ---------- ESPAÇAMENTOS ---------- */
+    --espacamento-xs: 4px;
+    --espacamento-sm: 8px;
+    --espacamento-md: 16px;
+    --espacamento-lg: 24px;
+    --espacamento-xl: 32px;
+
+    /* ---------- SOMBRAS ---------- */
+    --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --sombra-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --sombra-menu: 2px 0 8px rgba(0, 0, 0, 0.05);
+
+    /* ---------- BORDAS ARREDONDADAS ---------- */
+    --raio-pequeno: 6px;
+    --raio-medio: 8px;
+    --raio-grande: 12px;
+
+    /* ---------- TRANSICÕES ---------- */
+    --transicao-rapida: 0.2s ease;
+    --transicao-normal: 0.3s ease;
+}

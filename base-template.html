@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <!-- Faz a página se adaptar ao tamanho da tela (essencial para mobile) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Título da página (mude em cada página) -->
+    <title>Sistema Financeiro - Dashboard</title>
+    
+    <!-- Importa a fonte Inter do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Nossos arquivos CSS (sempre nesta ordem: reset -> variáveis -> layout) -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    
+    <!-- CSS específico desta página (ex: dashboard.css) -->
+    <!-- <link rel="stylesheet" href="css/dashboard.css"> -->
+</head>
+<body>
+
+    <!-- Botão hambúrguer para mobile -->
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    
+    <!-- Overlay escuro (fica atrás do menu no mobile) -->
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- ========== MENU LATERAL ========== -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item ativo">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ========== ÁREA DE CONTEÚDO ========== -->
+        <main class="conteudo">
+            
+            <!-- Cabeçalho -->
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1>Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone">U</div>
+                </div>
+            </header>
+
+            <!-- Área onde cada página coloca seu conteúdo único -->
+            <section class="area-principal" id="areaPrincipal">
+                
+                <!-- ========================================== -->
+                <!-- CONTEÚDO ESPECÍFICO DA PÁGINA VAI AQUI!    -->
+                <!-- ========================================== -->
+                
+                <h2>Bem-vindo ao seu Sistema Financeiro!</h2>
+                <p>Este é o template base. Em breve teremos gráficos, tabelas e muito mais aqui.</p>
+                
+                <!-- ========================================== -->
+                
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript base (funciona em todas as páginas) -->
+    <script src="js/app.js"></script>
+    
+    <!-- JavaScript específico da página -->
+    <!-- <script src="js/dashboard.js"></script> -->
+</body>
+</html>

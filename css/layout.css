@@ -1,0 +1,230 @@
+/* ============================================
+   LAYOUT.CSS - Estrutura visual do sistema
+   ============================================
+   Aqui montamos o "esqueleto" que aparece em
+   TODAS as páginas: menu, cabeçalho e conteúdo.
+   ============================================ */
+
+/* ---------- ESTRUTURA PRINCIPAL ---------- */
+.pagina {
+    display: flex;                    /* Coloca menu e conteúdo lado a lado */
+    min-height: 100vh;                /* Altura mínima = 100% da tela */
+}
+
+/* ---------- MENU LATERAL (Desktop) ---------- */
+.menu-lateral {
+    width: 260px;                     /* Largura fixa do menu */
+    height: 100vh;                    /* Altura total da tela */
+    background-color: var(--cor-primaria);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;           /* Itens empilhados verticalmente */
+    position: fixed;                  /* Fixo na tela, não rola */
+    left: 0;
+    top: 0;
+    box-shadow: var(--sombra-menu);
+    z-index: 100;                     /* Fica por cima de tudo */
+    transition: transform var(--transicao-normal);
+}
+
+/* Logo / Título do sistema no menu */
+.menu-logo {
+    padding: var(--espacamento-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: var(--tamanho-subtitulo);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--espacamento-sm);
+}
+
+/* Ícone do logo (usaremos emoji por enquanto, depois trocamos por SVG) */
+.menu-logo .icone {
+    font-size: 24px;
+}
+
+/* Lista de links do menu */
+.menu-links {
+    flex: 1;                          /* Ocupa todo espaço disponível */
+    padding: var(--espacamento-md) 0;
+    overflow-y: auto;                 /* Rola se tiver muitos itens */
+}
+
+/* Cada item do menu */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--espacamento-sm);
+    padding: var(--espacamento-md) var(--espacamento-lg);
+    color: rgba(255, 255, 255, 0.8);
+    transition: all var(--transicao-rapida);
+    border-left: 3px solid transparent; /* Borda invisível para não pular no hover */
+}
+
+/* Ícone de cada item */
+.menu-item .icone {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+/* Quando passa o mouse no item */
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-left-color: var(--cor-receita);
+}
+
+/* Item ativo (página atual) */
+.menu-item.ativo {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-left-color: var(--cor-receita);
+    font-weight: 600;
+}
+
+/* Botão de sair no final do menu */
+.menu-rodape {
+    padding: var(--espacamento-md) var(--espacamento-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-sair {
+    display: flex;
+    align-items: center;
+    gap: var(--espacamento-sm);
+    color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    padding: var(--espacamento-sm) 0;
+    transition: color var(--transicao-rapida);
+}
+
+.btn-sair:hover {
+    color: var(--cor-despesa);
+}
+
+/* ---------- ÁREA DE CONTEÚDO ---------- */
+.conteudo {
+    flex: 1;
+    margin-left: 260px;               /* Empurra para não ficar atrás do menu */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ---------- CABEÇALHO ---------- */
+.cabecalho {
+    background-color: var(--cor-fundo-branco);
+    padding: var(--espacamento-md) var(--espacamento-xl);
+    display: flex;
+    justify-content: space-between;   /* Separa saudação e perfil */
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: sticky;                 /* Gruda no topo ao rolar */
+    top: 0;
+    z-index: 50;
+}
+
+.saudacao h1 {
+    font-size: var(--tamanho-titulo);
+    font-weight: 600;
+    color: var(--cor-texto);
+}
+
+.saudacao p {
+    font-size: var(--tamanho-pequeno);
+    color: var(--cor-texto-claro);
+    margin-top: var(--espacamento-xs);
+}
+
+.perfil {
+    display: flex;
+    align-items: center;
+    gap: var(--espacamento-md);
+}
+
+.perfil-icone {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;               /* Círculo perfeito */
+    background-color: var(--cor-primaria-clara);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--tamanho-subtitulo);
+}
+
+/* ---------- ÁREA PRINCIPAL (onde cada página coloca seu conteúdo) ---------- */
+.area-principal {
+    flex: 1;
+    padding: var(--espacamento-xl);
+}
+
+/* ---------- BOTÃO MENU MOBILE (só aparece no celular) ---------- */
+.btn-menu-mobile {
+    display: none;                    /* Escondido no desktop */
+    position: fixed;
+    top: var(--espacamento-md);
+    left: var(--espacamento-md);
+    z-index: 200;
+    width: 40px;
+    height: 40px;
+    background-color: var(--cor-primaria);
+    color: #ffffff;
+    border-radius: var(--raio-medio);
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--sombra-card);
+}
+
+/* ---------- RESPONSIVIDADE (Celular) ---------- */
+@media (max-width: 768px) {
+    .btn-menu-mobile {
+        display: flex;                /* Mostra o botão hambúrguer */
+    }
+
+    .menu-lateral {
+        transform: translateX(-100%); /* Esconde o menu para fora da tela */
+    }
+
+    .menu-lateral.aberto {
+        transform: translateX(0);     /* Mostra o menu quando aberto */
+    }
+
+    .conteudo {
+        margin-left: 0;               /* Remove a margem do menu */
+    }
+
+    .cabecalho {
+        padding-left: 60px;           /* Espaço para o botão hambúrguer */
+    }
+
+    .area-principal {
+        padding: var(--espacamento-md);
+    }
+}
+
+/* ---------- UTILITÁRIOS ---------- */
+/* Classe para esconder elementos */
+.escondido {
+    display: none !important;
+}
+
+/* Overlay escuro quando menu mobile está aberto */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+}
+
+.overlay.ativo {
+    display: block;
+}

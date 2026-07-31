@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Meu Financeiro</title>
+    
+    <!-- Fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS base -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    
+    <!-- CSS específico do dashboard (estilos dos cartões) -->
+    <style>
+        /* ---------- CARTÕES DO DASHBOARD ---------- */
+        .grid-cartoes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
+            gap: var(--espacamento-lg);
+            margin-bottom: var(--espacamento-xl);
+        }
+
+        .cartao {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-lg);
+            box-shadow: var(--sombra-card);
+            transition: box-shadow var(--transicao-rapida);
+        }
+
+        .cartao:hover {
+            box-shadow: var(--sombra-card-hover);
+        }
+
+        .cartao-titulo {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--espacamento-sm);
+        }
+
+        .cartao-valor {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cor-texto);
+        }
+
+        .cartao-valor.receita {
+            color: var(--cor-receita);
+        }
+
+        .cartao-valor.despesa {
+            color: var(--cor-despesa);
+        }
+
+        .cartao-icone {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--raio-medio);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: var(--espacamento-md);
+        }
+
+        .cartao-icone.azul { background-color: #ebf8ff; }
+        .cartao-icone.verde { background-color: #f0fff4; }
+        .cartao-icone.vermelho { background-color: #fff5f5; }
+
+        /* ---------- SEÇÃO DO ASSISTENTE ---------- */
+        .assistente {
+            background-color: var(--cor-alerta-clara);
+            border-left: 4px solid var(--cor-alerta);
+            border-radius: var(--raio-medio);
+            padding: var(--espacamento-lg);
+            margin-bottom: var(--espacamento-xl);
+        }
+
+        .assistente-titulo {
+            font-weight: 600;
+            color: var(--cor-texto);
+            margin-bottom: var(--espacamento-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--espacamento-sm);
+        }
+
+        .assistente-texto {
+            color: var(--cor-texto-claro);
+            font-size: var(--tamanho-texto);
+            line-height: 1.5;
+        }
+
+        /* ---------- ÁREA DO GRÁFICO (placeholder) ---------- */
+        .secao-grafico {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-lg);
+            box-shadow: var(--sombra-card);
+        }
+
+        .secao-grafico h3 {
+            font-size: var(--tamanho-subtitulo);
+            margin-bottom: var(--espacamento-lg);
+            color: var(--cor-texto);
+        }
+
+        .grafico-placeholder {
+            height: 300px;
+            background-color: var(--cor-fundo);
+            border-radius: var(--raio-medio);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cor-texto-claro);
+            font-size: var(--tamanho-texto);
+        }
+
+        /* ---------- RESPONSIVIDADE ---------- */
+        @media (max-width: 768px) {
+            .grid-cartoes {
+                grid-template-columns: 1fr; /* 1 coluna no celular */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão hambúrguer mobile -->
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item ativo">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="conteudo">
+            
+            <!-- Cabeçalho -->
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1>Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone">U</div>
+                </div>
+            </header>
+
+            <!-- Área Principal -->
+            <section class="area-principal">
+                
+                <!-- Cartões de Resumo -->
+                <div class="grid-cartoes">
+                    <div class="cartao">
+                        <div class="cartao-icone azul">💳</div>
+                        <div class="cartao-titulo">Saldo Atual</div>
+                        <div class="cartao-valor">R$ 12.450,00</div>
+                    </div>
+                    
+                    <div class="cartao">
+                        <div class="cartao-icone verde">📈</div>
+                        <div class="cartao-titulo">Entradas do Mês</div>
+                        <div class="cartao-valor receita">R$ 8.500,00</div>
+                    </div>
+                    
+                    <div class="cartao">
+                        <div class="cartao-icone vermelho">📉</div>
+                        <div class="cartao-titulo">Contas a Pagar</div>
+                        <div class="cartao-valor despesa">R$ 3.200,00</div>
+                    </div>
+                </div>
+
+                <!-- Assistente Inteligente -->
+                <div class="assistente">
+                    <div class="assistente-titulo">💡 Assistente Inteligente</div>
+                    <div class="assistente-texto">
+                        Você tem <strong>R$ 1.200,00</strong> em contas para pagar no dia 10, 
+                        mas seu salário só entra no dia 15. Sugerimos negociar o vencimento 
+                        da fatura do cartão para o dia 20.
+                    </div>
+                </div>
+
+                <!-- Gráfico (placeholder por enquanto) -->
+                <div class="secao-grafico">
+                    <h3>Receitas vs Despesas - Julho/2026</h3>
+                    <div class="grafico-placeholder">
+                        📊 Gráfico será inserido aqui na próxima etapa (Chart.js)
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>
