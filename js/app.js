@@ -2,33 +2,31 @@
    APP.JS - JavaScript base de TODAS as páginas
    ============================================ */
 
-/**
- * Executa quando a página termina de carregar
- */
 document.addEventListener('DOMContentLoaded', function() {
+    // Se esta página NÃO for o login, verifica autenticação
+    const ehPaginaLogin = window.location.pathname.includes('index.html');
+    
+    if (!ehPaginaLogin) {
+        // Protege a página: só entra se estiver logado
+        preencherUsuarioLogado();
+    }
+    
     atualizarData();
     marcarMenuAtivo();
 });
 
 /**
  * Mostra a data atual no formato brasileiro no cabeçalho
- * Exemplo: "Quinta-feira, 31 de Julho de 2026"
  */
 function atualizarData() {
     const hoje = new Date();
-    
-    // Opções de formatação em português do Brasil
     const opcoes = { 
-        weekday: 'long',      // dia da semana por extenso
-        year: 'numeric',      // ano com 4 dígitos
-        month: 'long',        // mês por extenso
-        day: 'numeric'        // dia do mês
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     };
-    
-    // Formata a data para pt-BR
     const dataFormatada = hoje.toLocaleDateString('pt-BR', opcoes);
-    
-    // Coloca no elemento com id="dataAtual"
     const elementoData = document.getElementById('dataAtual');
     if (elementoData) {
         elementoData.textContent = dataFormatada;
@@ -39,18 +37,13 @@ function atualizarData() {
  * Destaca no menu qual página está aberta no momento
  */
 function marcarMenuAtivo() {
-    // Pega o nome do arquivo atual (ex: "dashboard.html")
-    const paginaAtual = window.location.pathname.split('/').pop();
-    
-    // Pega todos os links do menu
+    const paginaAtual = window.location.pathname.split('/').pop() || 'dashboard.html';
     const linksMenu = document.querySelectorAll('.menu-item');
     
     linksMenu.forEach(function(link) {
-        // Remove a classe "ativo" de todos
         link.classList.remove('ativo');
-        
-        // Se o href do link for igual à página atual, adiciona "ativo"
-        if (link.getAttribute('href') === paginaAtual) {
+        const href = link.getAttribute('href');
+        if (href === paginaAtual || (paginaAtual === '' && href === 'dashboard.html')) {
             link.classList.add('ativo');
         }
     });
@@ -62,16 +55,8 @@ function marcarMenuAtivo() {
 function toggleMenu() {
     const menu = document.getElementById('menuLateral');
     const overlay = document.getElementById('overlay');
-    
-    menu.classList.toggle('aberto');
-    overlay.classList.toggle('ativo');
-}
-
-/**
- * Função de sair (por enquanto só volta para o login)
- */
-function sair() {
-    // Futuramente vamos limpar a sessão aqui
-    alert('Você saiu do sistema!');
-    window.location.href = 'index.html';
+    if (menu && overlay) {
+        menu.classList.toggle('aberto');
+        overlay.classList.toggle('ativo');
+    }
 }
