@@ -1,0 +1,165 @@
+/* ============================================
+   COMPONENTS.CSS - Peças visuais reutilizáveis
+   ============================================
+   Pense neste arquivo como uma caixa de legos.
+   Cada classe aqui é uma peça que usamos para
+   montar qualquer tela do sistema.
+   ============================================ */
+
+/* ---------- BOTÕES ---------- */
+.btn {
+    display: inline-flex;             /* Alinha ícone e texto */
+    align-items: center;
+    justify-content: center;
+    gap: var(--espacamento-sm);
+    padding: 12px 24px;
+    border-radius: var(--raio-medio);
+    font-size: var(--tamanho-texto);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transicao-rapida);
+    border: none;
+    width: 100%;                      /* Ocupa largura total por padrão */
+}
+
+/* Botão primário (azul) */
+.btn-primario {
+    background-color: var(--cor-primaria);
+    color: #ffffff;
+}
+
+.btn-primario:hover {
+    background-color: var(--cor-primaria-clara);
+    transform: translateY(-1px);    /* Leve efeito de "subir" */
+}
+
+/* Botão desabilitado */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ---------- FORMULÁRIOS ---------- */
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacamento-md);
+}
+
+.grupo-campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacamento-xs);
+}
+
+.grupo-campo label {
+    font-size: var(--tamanho-texto);
+    font-weight: 500;
+    color: var(--cor-texto);
+}
+
+.grupo-campo input {
+    padding: 12px 14px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pequeno);
+    font-size: var(--tamanho-texto);
+    color: var(--cor-texto);
+    background-color: var(--cor-fundo-branco);
+    transition: border-color var(--transicao-rapida);
+}
+
+.grupo-campo input:focus {
+    outline: none;                    /* Remove contorno azul padrão do navegador */
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1); /* Brilho suave ao redor */
+}
+
+.grupo-campo input::placeholder {
+    color: var(--cor-texto-claro);
+}
+
+/* ---------- ALERTAS / MENSAGENS ---------- */
+.alertas {
+    padding: var(--espacamento-md);
+    border-radius: var(--raio-medio);
+    font-size: var(--tamanho-texto);
+    display: none;                    /* Escondido por padrão */
+    align-items: center;
+    gap: var(--espacamento-sm);
+}
+
+.alertas.visivel {
+    display: flex;                    /* Mostra quando tem classe "visivel" */
+}
+
+.alerta-erro {
+    background-color: #fff5f5;
+    color: var(--cor-despesa);
+    border: 1px solid #fc8181;
+}
+
+.alerta-sucesso {
+    background-color: #f0fff4;
+    color: var(--cor-receita);
+    border: 1px solid #9ae6b4;
+}
+
+/* ---------- CARD / PAINEL ---------- */
+.card {
+    background-color: var(--cor-fundo-branco);
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra-card);
+    padding: var(--espacamento-xl);
+}
+
+/* ---------- TELA DE LOGIN ESPECÍFICA ---------- */
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;              /* Centraliza verticalmente */
+    justify-content: center;          /* Centraliza horizontalmente */
+    background-color: var(--cor-fundo);
+    padding: var(--espacamento-md);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;                 /* Não fica muito largo no desktop */
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: var(--espacamento-xl);
+}
+
+.login-logo .icone {
+    font-size: 48px;
+    margin-bottom: var(--espacamento-sm);
+}
+
+.login-logo h2 {
+    font-size: var(--tamanho-titulo);
+    color: var(--cor-texto);
+    font-weight: 700;
+}
+
+.login-logo p {
+    color: var(--cor-texto-claro);
+    font-size: var(--tamanho-texto);
+    margin-top: var(--espacamento-xs);
+}
+
+.login-card {
+    background-color: var(--cor-fundo-branco);
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra-card);
+    padding: var(--espacamento-xl);
+}
+
+.login-rodape {
+    text-align: center;
+    margin-top: var(--espacamento-lg);
+    color: var(--cor-texto-claro);
+    font-size: var(--tamanho-pequeno);
+}

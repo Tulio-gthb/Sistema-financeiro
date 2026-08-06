@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamentos - Meu Financeiro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        /* ---------- CABEÇALHO DA PÁGINA ---------- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--espacamento-lg);
+            flex-wrap: wrap;
+            gap: var(--espacamento-md);
+        }
+        
+        .page-header h2 {
+            font-size: var(--tamanho-titulo);
+            color: var(--cor-texto);
+        }
+        
+        /* ---------- FILTROS ---------- */
+        .barra-filtros {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-md);
+            box-shadow: var(--sombra-card);
+            margin-bottom: var(--espacamento-lg);
+            display: flex;
+            gap: var(--espacamento-md);
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        
+        .grupo-filtro {
+            display: flex;
+            flex-direction: column;
+            gap: var(--espacamento-xs);
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .grupo-filtro label {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            font-weight: 500;
+        }
+        
+        .grupo-filtro input,
+        .grupo-filtro select {
+            padding: 10px 12px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+            background-color: var(--cor-fundo-branco);
+        }
+        
+        .btn-novo {
+            background-color: var(--cor-primaria);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: var(--raio-medio);
+            font-weight: 600;
+            font-size: var(--tamanho-texto);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--espacamento-sm);
+            cursor: pointer;
+            border: none;
+            white-space: nowrap;
+        }
+        
+        .btn-novo:hover {
+            background-color: var(--cor-primaria-clara);
+        }
+        
+        /* ---------- TABELA DESKTOP ---------- */
+        .tabela-container {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            box-shadow: var(--sombra-card);
+            overflow: hidden;
+        }
+        
+        .tabela-lancamentos {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .tabela-lancamentos thead {
+            background-color: #f7fafc;
+        }
+        
+        .tabela-lancamentos th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: var(--tamanho-pequeno);
+            font-weight: 600;
+            color: var(--cor-texto-claro);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+        
+        .tabela-lancamentos td {
+            padding: 14px 16px;
+            font-size: var(--tamanho-texto);
+            border-bottom: 1px solid var(--cor-borda);
+            vertical-align: middle;
+        }
+        
+        .tabela-lancamentos tbody tr:hover {
+            background-color: #f7fafc;
+        }
+        
+        .tabela-lancamentos .valor {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .tabela-lancamentos .valor.receita { color: var(--cor-receita); }
+        .tabela-lancamentos .valor.despesa { color: var(--cor-despesa); }
+        
+        .tag-categoria {
+            background-color: #edf2f7;
+            color: var(--cor-texto);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge-status.pago, .badge-status.recebido {
+            background-color: #f0fff4;
+            color: var(--cor-receita);
+        }
+        
+        .badge-status.pendente {
+            background-color: #fffaf0;
+            color: #dd6b20;
+        }
+        
+        .acoes {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .btn-acao {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--raio-pequeno);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-acao:hover {
+            background-color: var(--cor-fundo);
+        }
+        
+        .btn-baixa:hover { border-color: var(--cor-receita); color: var(--cor-receita); }
+        .btn-editar:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
+        .btn-excluir:hover { border-color: var(--cor-despesa); color: var(--cor-despesa); }
+        
+        /* ---------- CARDS MOBILE ---------- */
+        .cards-mobile {
+            display: none;
+            flex-direction: column;
+            gap: var(--espacamento-md);
+        }
+        
+        .card-lancamento {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-lg);
+            box-shadow: var(--sombra-card);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--espacamento-sm);
+        }
+        
+        .card-data {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+        }
+        
+        .card-descricao {
+            font-size: var(--tamanho-subtitulo);
+            font-weight: 600;
+            color: var(--cor-texto);
+            margin-bottom: var(--espacamento-sm);
+        }
+        
+        .card-detalhes {
+            display: flex;
+            gap: var(--espacamento-md);
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            margin-bottom: var(--espacamento-sm);
+        }
+        
+        .card-valor {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .card-valor.receita { color: var(--cor-receita); }
+        .card-valor.despesa { color: var(--cor-despesa); }
+        
+        .card-acoes {
+            display: flex;
+            gap: var(--espacamento-sm);
+        }
+        
+        .btn-card {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--raio-pequeno);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            font-size: var(--tamanho-pequeno);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        /* ---------- MODAL ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--espacamento-md);
+        }
+        
+        .modal-overlay.visivel {
+            display: flex;
+        }
+        
+        .modal-conteudo {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalEntra 0.3s ease;
+        }
+        
+        @keyframes modalEntra {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: var(--espacamento-lg);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: var(--tamanho-subtitulo);
+            color: var(--cor-texto);
+        }
+        
+        .btn-fechar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--cor-texto-claro);
+        }
+        
+        .modal-body {
+            padding: var(--espacamento-lg);
+        }
+        
+        .modal-body .grupo-campo {
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .modal-body label {
+            display: block;
+            margin-bottom: var(--espacamento-xs);
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+            color: var(--cor-texto);
+        }
+        
+        .modal-body input,
+        .modal-body select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+        }
+        
+        .modal-body input:focus,
+        .modal-body select:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+        }
+        
+        .linha-dupla {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--espacamento-md);
+        }
+        
+        .check-recorrente {
+            display: flex;
+            align-items: center;
+            gap: var(--espacamento-sm);
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .check-recorrente input {
+            width: auto;
+        }
+        
+        .modal-footer {
+            padding: var(--espacamento-lg);
+            border-top: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--espacamento-sm);
+        }
+        
+        .btn-secundario {
+            padding: 10px 20px;
+            border-radius: var(--raio-medio);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        /* ---------- RESPONSIVIDADE ---------- */
+        @media (max-width: 768px) {
+            .tabela-container {
+                display: none;
+            }
+            
+            .cards-mobile {
+                display: flex;
+            }
+            
+            .barra-filtros {
+                flex-direction: column;
+            }
+            
+            .grupo-filtro {
+                width: 100%;
+            }
+            
+            .linha-dupla {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .resumo-filtros {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            margin-bottom: var(--espacamento-md);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão hambúrguer mobile -->
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item ativo">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="conteudo">
+            
+            <!-- Cabeçalho -->
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1 id="saudacao">Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone" id="nomeUsuario">U</div>
+                </div>
+            </header>
+
+            <!-- Área Principal -->
+            <section class="area-principal">
+                
+                <!-- Título e botão -->
+                <div class="page-header">
+                    <h2>📝 Lançamentos</h2>
+                    <button class="btn-novo" onclick="abrirModal()">
+                        <span>➕</span>
+                        <span>Novo Lançamento</span>
+                    </button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="barra-filtros">
+                    <div class="grupo-filtro">
+                        <label>Buscar</label>
+                        <input type="text" id="filtroBusca" placeholder="Descrição, fornecedor..." oninput="carregarLancamentos()">
+                    </div>
+                    <div class="grupo-filtro">
+                        <label>Mês</label>
+                        <select id="filtroMes" onchange="carregarLancamentos()">
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="grupo-filtro">
+                        <label>Ano</label>
+                        <select id="filtroAno" onchange="carregarLancamentos()"></select>
+                    </div>
+                    <div class="grupo-filtro">
+                        <label>Status</label>
+                        <select id="filtroStatus" onchange="carregarLancamentos()">
+                            <option value="todos">Todos</option>
+                            <option value="pendente">Pendentes</option>
+                            <option value="pago">Pagos</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="resumo-filtros" id="resumoFiltros">Carregando...</div>
+                
+                <!-- TABELA DESKTOP -->
+                <div class="tabela-container">
+                    <table class="tabela-lancamentos">
+                        <thead>
+                            <tr>
+                                <th>Vencimento</th>
+                                <th>Descrição</th>
+                                <th>Fornecedor</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaLancamentos">
+                            <!-- JavaScript preenche aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- CARDS MOBILE -->
+                <div class="cards-mobile" id="cardsMobile">
+                    <!-- JavaScript preenche aqui -->
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL NOVO/EDITAR -->
+    <div class="modal-overlay" id="modalLancamento" onclick="if(event.target === this) fecharModal()">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3 id="modalTitulo">➕ Novo Lançamento</h3>
+                <button class="btn-fechar" onclick="fecharModal()">×</button>
+            </div>
+            
+            <form id="formLancamento">
+                <div class="modal-body">
+                    
+                    <div class="grupo-campo">
+                        <label for="campoDescricao">Descrição *</label>
+                        <input type="text" id="campoDescricao" required placeholder="Ex: Aluguel, Salário, Supermercado">
+                    </div>
+                    
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoTipo">Tipo *</label>
+                            <select id="campoTipo" required>
+                                <option value="despesa">Despesa (saída)</option>
+                                <option value="receita">Receita (entrada)</option>
+                            </select>
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoCategoria">Categoria *</label>
+                            <select id="campoCategoria" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoValor">Valor (R$) *</label>
+                            <input type="number" id="campoValor" required step="0.01" min="0" placeholder="0,00">
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoData">Data *</label>
+                            <input type="date" id="campoData" required>
+                        </div>
+                    </div>
+                    
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoFornecedor">Fornecedor / Fonte</label>
+                            <input type="text" id="campoFornecedor" placeholder="Ex: Imobiliária, Empresa ABC">
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoStatus">Status</label>
+                            <select id="campoStatus">
+                                <option value="pendente">Pendente</option>
+                                <option value="pago">Pago / Recebido</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="check-recorrente">
+                        <input type="checkbox" id="campoRecorrente">
+                        <label for="campoRecorrente">Este lançamento é recorrente (mensal)</label>
+                    </div>
+                    
+                    <div class="grupo-campo">
+                        <label for="campoObservacao">Observação</label>
+                        <input type="text" id="campoObservacao" placeholder="Notas adicionais...">
+                    </div>
+                    
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secundario" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript (ORDEM IMPORTA) -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/lancamentos.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Meu Financeiro</title>
+    
+    <!-- Fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS base -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body class="pagina-login">
+
+    <div class="login-container">
+        
+        <!-- Logo e título -->
+        <div class="login-logo">
+            <div class="icone">💰</div>
+            <h2>Meu Financeiro</h2>
+            <p>Gerencie suas finanças com inteligência</p>
+        </div>
+        
+        <!-- Card do formulário -->
+        <div class="login-card">
+            <form id="formLogin" class="formulario" autocomplete="off">
+                
+                <!-- Alerta de erro (escondido por padrão) -->
+                <div id="alertaLogin" class="alertas alerta-erro"></div>
+                
+                <div class="grupo-campo">
+                    <label for="email">E-mail</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="usuario@email.com" 
+                        required
+                        autofocus
+                    >
+                </div>
+                
+                <div class="grupo-campo">
+                    <label for="senha">Senha</label>
+                    <input 
+                        type="password" 
+                        id="senha" 
+                        placeholder="Digite sua senha" 
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="btn btn-primario">
+                    🔓 Entrar
+                </button>
+                
+            </form>
+        </div>
+        
+        <!-- Dica de acesso -->
+        <div class="login-rodape">
+            <p>🔑 Primeiro acesso? Use: <strong>usuario@email.com</strong> / <strong>1015</strong></p>
+        </div>
+        
+    </div>
+
+    <!-- JavaScript de autenticação -->
+    <script src="js/auth.js"></script>
+</body>
+</html>

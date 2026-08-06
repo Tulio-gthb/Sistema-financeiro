@@ -14,13 +14,13 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
     
-    <!-- CSS específico do dashboard (estilos dos cartões) -->
+    <!-- CSS específico do dashboard -->
     <style>
-        /* ---------- CARTÕES DO DASHBOARD ---------- */
         .grid-cartoes {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--espacamento-lg);
             margin-bottom: var(--espacamento-xl);
         }
@@ -51,13 +51,8 @@
             color: var(--cor-texto);
         }
 
-        .cartao-valor.receita {
-            color: var(--cor-receita);
-        }
-
-        .cartao-valor.despesa {
-            color: var(--cor-despesa);
-        }
+        .cartao-valor.receita { color: var(--cor-receita); }
+        .cartao-valor.despesa { color: var(--cor-despesa); }
 
         .cartao-icone {
             width: 40px;
@@ -74,7 +69,6 @@
         .cartao-icone.verde { background-color: #f0fff4; }
         .cartao-icone.vermelho { background-color: #fff5f5; }
 
-        /* ---------- SEÇÃO DO ASSISTENTE ---------- */
         .assistente {
             background-color: var(--cor-alerta-clara);
             border-left: 4px solid var(--cor-alerta);
@@ -98,7 +92,6 @@
             line-height: 1.5;
         }
 
-        /* ---------- ÁREA DO GRÁFICO (placeholder) ---------- */
         .secao-grafico {
             background-color: var(--cor-fundo-branco);
             border-radius: var(--raio-grande);
@@ -117,16 +110,18 @@
             background-color: var(--cor-fundo);
             border-radius: var(--raio-medio);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: var(--cor-texto-claro);
             font-size: var(--tamanho-texto);
+            text-align: center;
+            gap: var(--espacamento-sm);
         }
 
-        /* ---------- RESPONSIVIDADE ---------- */
         @media (max-width: 768px) {
             .grid-cartoes {
-                grid-template-columns: 1fr; /* 1 coluna no celular */
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -183,11 +178,11 @@
             <!-- Cabeçalho -->
             <header class="cabecalho">
                 <div class="saudacao">
-                    <h1>Bom dia, Usuário</h1>
+                    <h1 id="saudacao">Bom dia, Usuário</h1>
                     <p id="dataAtual">Carregando data...</p>
                 </div>
                 <div class="perfil">
-                    <div class="perfil-icone">U</div>
+                    <div class="perfil-icone" id="nomeUsuario">U</div>
                 </div>
             </header>
 
@@ -199,36 +194,35 @@
                     <div class="cartao">
                         <div class="cartao-icone azul">💳</div>
                         <div class="cartao-titulo">Saldo Atual</div>
-                        <div class="cartao-valor">R$ 12.450,00</div>
+                        <div class="cartao-valor" id="cartaoSaldo">R$ 0,00</div>
                     </div>
                     
                     <div class="cartao">
                         <div class="cartao-icone verde">📈</div>
                         <div class="cartao-titulo">Entradas do Mês</div>
-                        <div class="cartao-valor receita">R$ 8.500,00</div>
+                        <div class="cartao-valor" id="cartaoReceitas">R$ 0,00</div>
                     </div>
                     
                     <div class="cartao">
                         <div class="cartao-icone vermelho">📉</div>
                         <div class="cartao-titulo">Contas a Pagar</div>
-                        <div class="cartao-valor despesa">R$ 3.200,00</div>
+                        <div class="cartao-valor despesa" id="cartaoDespesas">R$ 0,00</div>
+                        <div style="margin-top: 8px; font-size: 12px; color: var(--cor-texto-claro);" id="contasPendentes">0 contas</div>
                     </div>
                 </div>
 
                 <!-- Assistente Inteligente -->
                 <div class="assistente">
                     <div class="assistente-titulo">💡 Assistente Inteligente</div>
-                    <div class="assistente-texto">
-                        Você tem <strong>R$ 1.200,00</strong> em contas para pagar no dia 10, 
-                        mas seu salário só entra no dia 15. Sugerimos negociar o vencimento 
-                        da fatura do cartão para o dia 20.
+                    <div class="assistente-texto" id="assistenteTexto">
+                        Analisando seus dados financeiros...
                     </div>
                 </div>
 
-                <!-- Gráfico (placeholder por enquanto) -->
+                <!-- Gráfico (placeholder) -->
                 <div class="secao-grafico">
-                    <h3>Receitas vs Despesas - Julho/2026</h3>
-                    <div class="grafico-placeholder">
+                    <h3>Receitas vs Despesas - Mês Atual</h3>
+                    <div class="grafico-placeholder" id="graficoPlaceholder">
                         📊 Gráfico será inserido aqui na próxima etapa (Chart.js)
                     </div>
                 </div>
@@ -237,7 +231,10 @@
         </main>
     </div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript (ORDEM IMPORTA: storage -> auth -> app -> dashboard) -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
