@@ -2,16 +2,18 @@
    LANCAMENTOS.JS - Controle da tela de lançamentos
    ============================================ */
 
-// ---------- VARIÁVEIS GLOBAIS ----------
-let lancamentosAtuais = [];       // Lista que está sendo mostrada na tela
-let lancamentoEditando = null;    // Guarda o ID do lançamento em edição (null = novo)
+let lancamentosAtuais = [];
+let lancamentoEditando = null;
 
 // ---------- INICIALIZAÇÃO ----------
 document.addEventListener('DOMContentLoaded', function() {
-    preencherFiltros();
-    carregarLancamentos();
+    try {
+        preencherFiltros();
+        carregarLancamentos();
+    } catch (erro) {
+        console.error('Erro ao inicializar lançamentos:', erro);
+    }
     
-    // Configura o formulário do modal
     const form = document.getElementById('formLancamento');
     if (form) {
         form.addEventListener('submit', salvarLancamento);
@@ -20,26 +22,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ---------- CARREGAR E RENDERIZAR ----------
 
-/**
- * Busca os lançamentos do banco e aplica os filtros da tela.
- */
 function carregarLancamentos() {
-    const ano = parseInt(document.getElementById('filtroAno').value);
-    const mes = parseInt(document.getElementById('filtroMes').value);
-    const status = document.getElementById('filtroStatus').value;
-    const busca = document.getElementById('filtroBusca').value.toLowerCase();
+    const elAno = document.getElementById('filtroAno');
+    const elMes = document.getElementById('filtroMes');
+    const elStatus = document.getElementById('filtroStatus');
+    const elBusca = document.getElementById('filtroBusca');
     
-    // Busca todos do mês selecionado (tipo 'todos' traz receitas e despesas)
+    // Proteção: se os elementos não existirem, sai
+    if (!elAno || !elMes) return;
+    
+    const ano = parseInt(elAno.value) || new Date().getFullYear();
+    const mes = parseInt(elMes.value) || (new Date().getMonth() + 1);
+    const status = elStatus ? elStatus.value : 'todos';
+    const busca = elBusca ? elBusca.value.toLowerCase() : '';
+    
     let lista = buscarLancamentosPorMes(ano, mes, 'todos');
     
-    // Aplica filtro de status (se não for "todos")
     if (status !== 'todos') {
         lista = lista.filter(function(l) {
             return l.status === status;
         });
     }
     
-    // Aplica filtro de busca por texto
     if (busca) {
         lista = lista.filter(function(l) {
             return (
@@ -56,14 +60,11 @@ function carregarLancamentos() {
     atualizarResumoFiltros();
 }
 
-/**
- * Desenha a tabela no desktop.
- */
 function renderizarTabela() {
     const tbody = document.getElementById('tabelaLancamentos');
     if (!tbody) return;
     
-    tbody.innerHTML = ''; // Limpa antes de redesenhar
+    tbody.innerHTML = '';
     
     if (lancamentosAtuais.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--cor-texto-claro);">Nenhum lançamento encontrado.</td></tr>';
@@ -76,12 +77,13 @@ function renderizarTabela() {
         
         const corValor = l.tipo === 'receita' ? 'receita' : 'despesa';
         const sinal = l.tipo === 'receita' ? '+' : '-';
-        const iconeStatus = l.status === 'pago' || l.status === 'recebido' ? '✅' : '⏳';
-        const textoStatus = l.status === 'pago' || l.status === 'recebido' ? 'Pago' : 'Pendente';
+        const iconeStatus = (l.status === 'pago' || l.status === 'recebido') ? '✅' : '⏳';
+        const textoStatus = (l.status === 'pago' || l.status === 'recebido') ? 'Pago' : 'Pendente';
+        const iconeRecorrente = l.recorrente ? ' 🔄' : '';
         
         tr.innerHTML = 
             '<td>' + formatarDataBR(l.data) + '</td>' +
-            '<td><strong>' + escaparHTML(l.descricao) + '</strong></td>' +
+            '<td><strong>' + escaparHTML(l.descricao) + '</strong>' + iconeRecorrente + '</td>' +
             '<td>' + escaparHTML(l.fornecedor || '-') + '</td>' +
             '<td><span class="tag-categoria">' + escaparHTML(l.categoria) + '</span></td>' +
             '<td class="valor ' + corValor + '">' + sinal + ' ' + formatarMoeda(l.valor) + '</td>' +
@@ -98,9 +100,6 @@ function renderizarTabela() {
     });
 }
 
-/**
- * Desenha os cards para mobile.
- */
 function renderizarCardsMobile() {
     const container = document.getElementById('cardsMobile');
     if (!container) return;
@@ -115,7 +114,7 @@ function renderizarCardsMobile() {
     lancamentosAtuais.forEach(function(l) {
         const corValor = l.tipo === 'receita' ? 'receita' : 'despesa';
         const sinal = l.tipo === 'receita' ? '+' : '-';
-        const iconeStatus = l.status === 'pago' || l.status === 'recebido' ? '✅' : '⏳';
+        const iconeStatus = (l.status === 'pago' || l.status === 'recebido') ? '✅' : '⏳';
         
         const card = document.createElement('div');
         card.className = 'card-lancamento';
@@ -124,7 +123,7 @@ function renderizarCardsMobile() {
                 '<span class="card-data">' + formatarDataBR(l.data) + '</span>' +
                 '<span class="badge-status ' + l.status + '">' + iconeStatus + ' ' + l.status + '</span>' +
             '</div>' +
-            '<div class="card-descricao">' + escaparHTML(l.descricao) + '</div>' +
+            '<div class="card-descricao">' + escaparHTML(l.descricao) + (l.recorrente ? ' 🔄' : '') + '</div>' +
             '<div class="card-detalhes">' +
                 '<span>' + escaparHTML(l.categoria) + '</span>' +
                 '<span>' + escaparHTML(l.fornecedor || '-') + '</span>' +
@@ -142,30 +141,29 @@ function renderizarCardsMobile() {
     });
 }
 
-/**
- * Atualiza o contador de resultados.
- */
 function atualizarResumoFiltros() {
     const el = document.getElementById('resumoFiltros');
-    if (el) {
+    if (!el) return;
+    
+    if (lancamentosAtuais.length === 0) {
+        el.textContent = 'Nenhum lançamento encontrado para este filtro.';
+    } else {
         el.textContent = lancamentosAtuais.length + ' lançamento' + (lancamentosAtuais.length !== 1 ? 's' : '') + ' encontrado' + (lancamentosAtuais.length !== 1 ? 's' : '');
     }
 }
 
-// ---------- MODAL (NOVO / EDITAR) ----------
+// ---------- MODAL ----------
 
-/**
- * Abre o modal. Se id for passado, carrega os dados para edição.
- */
 function abrirModal(id) {
     const modal = document.getElementById('modalLancamento');
     const titulo = document.getElementById('modalTitulo');
     const form = document.getElementById('formLancamento');
     
+    if (!modal || !titulo || !form) return;
+    
     lancamentoEditando = id || null;
     
     if (id) {
-        // Modo edição
         const l = buscarPorId(TABELAS.LANCAMENTOS, id);
         if (!l) return;
         
@@ -180,14 +178,12 @@ function abrirModal(id) {
         document.getElementById('campoRecorrente').checked = l.recorrente || false;
         document.getElementById('campoObservacao').value = l.observacao || '';
     } else {
-        // Modo novo
         titulo.textContent = '➕ Novo Lançamento';
         form.reset();
         
-        // Preenche data com hoje e mês/ano do filtro atual
         const hoje = new Date();
-        const ano = document.getElementById('filtroAno').value;
-        const mes = document.getElementById('filtroMes').value.padStart(2, '0');
+        const ano = document.getElementById('filtroAno').value || hoje.getFullYear();
+        const mes = (document.getElementById('filtroMes').value || (hoje.getMonth() + 1)).toString().padStart(2, '0');
         const dia = hoje.getDate().toString().padStart(2, '0');
         document.getElementById('campoData').value = ano + '-' + mes + '-' + dia;
         
@@ -197,18 +193,12 @@ function abrirModal(id) {
     modal.classList.add('visivel');
 }
 
-/**
- * Fecha o modal.
- */
 function fecharModal() {
     const modal = document.getElementById('modalLancamento');
     if (modal) modal.classList.remove('visivel');
     lancamentoEditando = null;
 }
 
-/**
- * Salva o lançamento (cria novo ou atualiza existente).
- */
 function salvarLancamento(evento) {
     evento.preventDefault();
     
@@ -236,22 +226,18 @@ function salvarLancamento(evento) {
 
 // ---------- AÇÕES RÁPIDAS ----------
 
-/**
- * Alterna o status entre pago/recebido e pendente.
- */
 function toggleStatus(id) {
     const l = buscarPorId(TABELAS.LANCAMENTOS, id);
     if (!l) return;
     
-    const novoStatus = (l.status === 'pago' || l.status === 'recebido') ? 'pendente' : (l.tipo === 'receita' ? 'recebido' : 'pago');
+    const novoStatus = (l.status === 'pago' || l.status === 'recebido') 
+        ? 'pendente' 
+        : (l.tipo === 'receita' ? 'recebido' : 'pago');
     
     atualizar(TABELAS.LANCAMENTOS, id, { status: novoStatus });
     carregarLancamentos();
 }
 
-/**
- * Exclui um lançamento com confirmação.
- */
 function excluirLancamento(id) {
     if (confirm('Tem certeza que deseja excluir este lançamento? Esta ação não pode ser desfeita.')) {
         remover(TABELAS.LANCAMENTOS, id);
@@ -259,15 +245,12 @@ function excluirLancamento(id) {
     }
 }
 
-// ---------- FILTROS ----------
+// ---------- FILTROS E BOTÃO GERAR MÊS ----------
 
-/**
- * Preenche os selects de ano, mês e categoria com valores úteis.
- */
 function preencherFiltros() {
     const hoje = new Date();
     
-    // Ano (atual e próximo)
+    // Ano
     const selectAno = document.getElementById('filtroAno');
     if (selectAno) {
         selectAno.innerHTML = '';
@@ -286,10 +269,11 @@ function preencherFiltros() {
         selectMes.value = hoje.getMonth() + 1;
     }
     
-    // Categorias
+    // Categorias no modal
     const selectCat = document.getElementById('campoCategoria');
     if (selectCat) {
         const categorias = buscarTodos(TABELAS.CATEGORIAS);
+        const valorAtual = selectCat.value;
         selectCat.innerHTML = '<option value="">Selecione...</option>';
         categorias.forEach(function(c) {
             const opt = document.createElement('option');
@@ -297,7 +281,38 @@ function preencherFiltros() {
             opt.textContent = c.nome;
             selectCat.appendChild(opt);
         });
+        if (valorAtual) selectCat.value = valorAtual;
     }
+    
+    // Botão "Gerar Mês"
+    adicionarBotaoGerarMes();
+}
+
+function adicionarBotaoGerarMes() {
+    const header = document.querySelector('.page-header');
+    if (!header || document.getElementById('btnGerarMes')) return;
+    
+    const btnGerar = document.createElement('button');
+    btnGerar.id = 'btnGerarMes';
+    btnGerar.className = 'btn-novo';
+    btnGerar.style.cssText = 'background-color:#dd6b20; margin-left:8px;';
+    btnGerar.innerHTML = '⚡ Gerar Mês';
+    btnGerar.onclick = function() {
+        const ano = parseInt(document.getElementById('filtroAno').value);
+        const mes = parseInt(document.getElementById('filtroMes').value);
+        const mesesNomes = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        
+        const quantidade = gerarLancamentosDoMes(ano, mes);
+        
+        if (quantidade > 0) {
+            alert('✅ ' + quantidade + ' lançamento(s) recorrente(s) gerado(s) para ' + mesesNomes[mes] + '/' + ano + '!');
+            carregarLancamentos();
+        } else {
+            alert('ℹ️ Nenhuma conta recorrente nova para gerar em ' + mesesNomes[mes] + '/' + ano + '. Todos já existem!');
+        }
+    };
+    
+    header.appendChild(btnGerar);
 }
 
 // ---------- UTILITÁRIOS ----------

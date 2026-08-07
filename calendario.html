@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário - Meu Financeiro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        /* ---------- CONTROLES ---------- */
+        .controles-calendario {
+            display: flex;
+            gap: var(--espacamento-md);
+            align-items: center;
+            margin-bottom: var(--espacamento-lg);
+            flex-wrap: wrap;
+        }
+        
+        .controles-calendario h2 {
+            font-size: var(--tamanho-titulo);
+            color: var(--cor-texto);
+            margin-right: auto;
+        }
+        
+        .controles-calendario select {
+            padding: 10px 14px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+            background-color: var(--cor-fundo-branco);
+        }
+        
+        /* ---------- GRADE DESKTOP ---------- */
+        .calendario-grade-container {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            box-shadow: var(--sombra-card);
+            overflow: hidden;
+            display: block;
+        }
+        
+        .calendario-grade {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        
+        .cal-dia-header {
+            padding: 12px;
+            text-align: center;
+            font-size: var(--tamanho-pequeno);
+            font-weight: 600;
+            color: var(--cor-texto-claro);
+            text-transform: uppercase;
+            background-color: #f7fafc;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+        
+        .cal-celula {
+            min-height: 100px;
+            padding: 8px;
+            border-right: 1px solid var(--cor-borda);
+            border-bottom: 1px solid var(--cor-borda);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .cal-celula:nth-child(7n) { border-right: none; }
+        .cal-celula:hover { background-color: #f7fafc; }
+        .cal-celula.vazio { background-color: #fafafa; cursor: default; }
+        .cal-celula.hoje { background-color: #ebf8ff; }
+        .cal-celula.negativo { background-color: #fff5f5; }
+        .cal-celula.negativo:hover { background-color: #fed7d7; }
+        
+        .cal-celula.hoje .cal-numero {
+            background-color: var(--cor-primaria);
+            color: white;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+        }
+        
+        .cal-numero {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cor-texto);
+            margin-bottom: 2px;
+        }
+        
+        .cal-entrada { font-size: 11px; color: var(--cor-receita); font-weight: 500; }
+        .cal-saida { font-size: 11px; color: var(--cor-despesa); font-weight: 500; }
+        
+        .cal-saldo {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: auto;
+        }
+        .cal-saldo.pos { color: var(--cor-texto); }
+        .cal-saldo.neg { color: var(--cor-despesa); }
+        
+        /* ---------- LISTA MOBILE ---------- */
+        .lista-mobile {
+            display: none;
+            flex-direction: column;
+            gap: var(--espacamento-md);
+        }
+        
+        .lista-item {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-lg);
+            box-shadow: var(--sombra-card);
+        }
+        .lista-item.negativo { border-left: 4px solid var(--cor-despesa); }
+        .lista-item.hoje { border: 2px solid var(--cor-primaria); }
+        
+        .lista-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--espacamento-sm);
+        }
+        .lista-dia { font-weight: 700; color: var(--cor-texto); }
+        .lista-saldo { font-weight: 600; }
+        .lista-saldo.pos { color: var(--cor-texto); }
+        .lista-saldo.neg { color: var(--cor-despesa); }
+        
+        .lista-linha { font-size: var(--tamanho-texto); margin-bottom: 4px; }
+        .lista-linha.entrada { color: var(--cor-receita); }
+        .lista-linha.saida { color: var(--cor-despesa); }
+        
+        .lista-detalhe {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-top: 1px solid var(--cor-borda);
+            font-size: var(--tamanho-pequeno);
+        }
+        .lista-detalhe.receita { color: var(--cor-receita); }
+        .lista-detalhe.despesa { color: var(--cor-despesa); }
+        
+        .lista-alerta {
+            margin-top: var(--espacamento-sm);
+            padding: var(--espacamento-sm);
+            background-color: #fff5f5;
+            color: var(--cor-despesa);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-pequeno);
+            font-weight: 500;
+        }
+        
+        /* ---------- PAINEL LATERAL ---------- */
+        .painel-lateral-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            z-index: 300;
+        }
+        .painel-lateral-overlay.visivel { display: block; }
+        
+        .painel-lateral {
+            position: fixed;
+            top: 0; right: 0;
+            width: 380px;
+            max-width: 90vw;
+            height: 100%;
+            background-color: var(--cor-fundo-branco);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+            z-index: 301;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .painel-lateral.visivel { transform: translateX(0); }
+        
+        .painel-header {
+            padding: var(--espacamento-lg);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .painel-header h3 {
+            font-size: var(--tamanho-subtitulo);
+            color: var(--cor-texto);
+        }
+        .btn-fechar-painel {
+            background: none; border: none;
+            font-size: 24px; cursor: pointer;
+            color: var(--cor-texto-claro);
+        }
+        
+        .painel-conteudo {
+            flex: 1;
+            padding: var(--espacamento-lg);
+            overflow-y: auto;
+        }
+        
+        .painel-resumo {
+            background-color: #f7fafc;
+            border-radius: var(--raio-medio);
+            padding: var(--espacamento-md);
+            margin-bottom: var(--espacamento-lg);
+        }
+        .painel-linha {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: var(--tamanho-texto);
+        }
+        .painel-linha .pos { color: var(--cor-receita); font-weight: 600; }
+        .painel-linha .neg { color: var(--cor-despesa); font-weight: 600; }
+        
+        .painel-lista { display: flex; flex-direction: column; gap: var(--espacamento-sm); }
+        
+        .painel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--espacamento-md);
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-medio);
+        }
+        .painel-item.receita { border-left: 3px solid var(--cor-receita); }
+        .painel-item.despesa { border-left: 3px solid var(--cor-despesa); }
+        
+        .painel-item-info { display: flex; flex-direction: column; gap: 2px; }
+        .painel-item-info strong { font-size: var(--tamanho-texto); color: var(--cor-texto); }
+        .painel-item-info small { font-size: var(--tamanho-pequeno); color: var(--cor-texto-claro); }
+        
+        .painel-item-valor { font-weight: 600; font-size: 15px; }
+        .painel-item-valor.receita { color: var(--cor-receita); }
+        .painel-item-valor.despesa { color: var(--cor-despesa); }
+        
+        .painel-alerta {
+            margin-top: var(--espacamento-lg);
+            padding: var(--espacamento-md);
+            background-color: #fff5f5;
+            border-left: 4px solid var(--cor-despesa);
+            border-radius: var(--raio-pequeno);
+            color: var(--cor-despesa);
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+        }
+        
+        /* ---------- RESPONSIVIDADE ---------- */
+        @media (max-width: 768px) {
+            .calendario-grade-container { display: none; }
+            .lista-mobile { display: flex; }
+            .painel-lateral { width: 100%; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item ativo">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="conteudo">
+            
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1 id="saudacao">Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone" id="nomeUsuario">U</div>
+                </div>
+            </header>
+
+            <section class="area-principal">
+                
+                <div class="controles-calendario">
+                    <h2>📅 Calendário de Fluxo de Caixa</h2>
+                    <select id="seletorMes">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                    <select id="seletorAno"></select>
+                </div>
+                
+                <!-- Grade Desktop -->
+                <div class="calendario-grade-container">
+                    <div class="calendario-grade" id="gradeCalendario"></div>
+                </div>
+                
+                <!-- Lista Mobile -->
+                <div class="lista-mobile" id="listaMobile"></div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Painel Lateral -->
+    <div class="painel-lateral-overlay" id="painelOverlay" onclick="fecharPainel()"></div>
+    <div class="painel-lateral" id="painelLateral">
+        <div class="painel-header">
+            <h3 id="painelTitulo">📅 Detalhes do Dia</h3>
+            <button class="btn-fechar-painel" id="btnFecharPainel" onclick="fecharPainel()">×</button>
+        </div>
+        <div class="painel-conteudo" id="painelConteudo"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/calendario.js"></script>
+</body>
+</html>

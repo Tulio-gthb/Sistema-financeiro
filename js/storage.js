@@ -390,6 +390,47 @@ function criarDadosExemplo() {
     }
 }
 
+// ---------- MOTOR DE RECORRÊNCIA ----------
+
+/**
+ * Gera lançamentos do mês baseado nas contas recorrentes ativas.
+ * NÃO duplica se já existir um lançamento com a mesma descrição no mesmo mês.
+ */
+function gerarLancamentosDoMes(ano, mes) {
+    const recorrentes = buscarContasRecorrentesAtivas();
+    const mesStr = String(mes).padStart(2, '0');
+    let criados = 0;
+    
+    recorrentes.forEach(function(conta) {
+        // Monta a data: ano-mes-diaVencimento
+        const dia = String(conta.diaVencimento).padStart(2, '0');
+        const dataLancamento = ano + '-' + mesStr + '-' + dia;
+        
+        // Verifica se já existe lançamento com mesma descrição neste mês
+        const lancamentosDoMes = buscarLancamentosPorMes(ano, mes, 'todos');
+        const jaExiste = lancamentosDoMes.some(function(l) {
+            return l.descricao === conta.descricao && l.recorrente === true;
+        });
+        
+        if (!jaExiste) {
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: conta.descricao,
+                tipo: conta.tipo,
+                categoria: conta.categoria,
+                valor: parseFloat(conta.valor),
+                data: dataLancamento,
+                status: 'pendente',
+                fornecedor: conta.fornecedor || '',
+                recorrente: true,
+                observacao: 'Gerado automaticamente pela recorrência'
+            });
+            criados++;
+        }
+    });
+    
+    return criados; // Retorna quantos foram criados
+}
+
 // ---------- INICIALIZAÇÃO ----------
 // Cria os dados de exemplo quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
