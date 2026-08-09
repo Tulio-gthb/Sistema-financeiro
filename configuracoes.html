@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Meu Financeiro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        /* ---------- ABAS ---------- */
+        .abas-nav {
+            display: flex;
+            gap: var(--espacamento-xs);
+            margin-bottom: var(--espacamento-lg);
+            border-bottom: 2px solid var(--cor-borda);
+        }
+        
+        .aba-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+            color: var(--cor-texto-claro);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .aba-btn:hover {
+            color: var(--cor-primaria);
+        }
+        
+        .aba-btn.ativa {
+            color: var(--cor-primaria);
+            border-bottom-color: var(--cor-primaria);
+            font-weight: 600;
+        }
+        
+        .aba-conteudo {
+            display: none;
+        }
+        
+        .aba-conteudo.ativa {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ---------- CARD CONFIGURAÇÃO ---------- */
+        .card-config {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-xl);
+            box-shadow: var(--sombra-card);
+            max-width: 600px;
+        }
+        
+        .card-config h3 {
+            font-size: var(--tamanho-subtitulo);
+            color: var(--cor-texto);
+            margin-bottom: var(--espacamento-lg);
+        }
+        
+        .card-config .grupo-campo {
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .card-config label {
+            display: block;
+            margin-bottom: var(--espacamento-xs);
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+            color: var(--cor-texto);
+        }
+        
+        .card-config input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+        }
+        
+        .card-config input:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+        }
+        
+        .card-config .btn-primario {
+            width: auto;
+            margin-top: var(--espacamento-sm);
+        }
+        
+        /* ---------- LISTA RECORRENTES ---------- */
+        .lista-recorrentes {
+            display: flex;
+            flex-direction: column;
+            gap: var(--espacamento-md);
+        }
+        
+        .item-recorrente {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-lg);
+            box-shadow: var(--sombra-card);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--espacamento-md);
+            border-left: 4px solid var(--cor-primaria);
+        }
+        
+        .item-recorrente.inativo {
+            opacity: 0.6;
+            border-left-color: var(--cor-texto-claro);
+        }
+        
+        .recorrente-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        
+        .recorrente-info strong {
+            font-size: 16px;
+            color: var(--cor-texto);
+        }
+        
+        .recorrente-tipo {
+            font-size: var(--tamanho-pequeno);
+            font-weight: 500;
+        }
+        
+        .recorrente-tipo.receita { color: var(--cor-receita); }
+        .recorrente-tipo.despesa { color: var(--cor-despesa); }
+        
+        .recorrente-detalhes {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+        }
+        
+        .recorrente-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 4px;
+            width: fit-content;
+        }
+        
+        .recorrente-status.ativo {
+            background-color: #f0fff4;
+            color: var(--cor-receita);
+        }
+        
+        .recorrente-status.pausado {
+            background-color: #fff5f5;
+            color: var(--cor-despesa);
+        }
+        
+        .recorrente-acoes {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .recorrente-acoes button {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--raio-pequeno);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .recorrente-acoes button:hover {
+            background-color: var(--cor-fundo);
+        }
+        
+        .btn-toggle:hover { border-color: var(--cor-primaria); }
+        .btn-editar-rec:hover { border-color: #3182ce; color: #3182ce; }
+        .btn-excluir-rec:hover { border-color: var(--cor-despesa); color: var(--cor-despesa); }
+        
+        .lista-vazia {
+            text-align: center;
+            padding: 48px;
+            color: var(--cor-texto-claro);
+        }
+        
+        /* ---------- MODAL RECORRENTE ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--espacamento-md);
+        }
+        
+        .modal-overlay.visivel {
+            display: flex;
+        }
+        
+        .modal-conteudo {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalEntra 0.3s ease;
+        }
+        
+        @keyframes modalEntra {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: var(--espacamento-lg);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: var(--tamanho-subtitulo);
+            color: var(--cor-texto);
+        }
+        
+        .btn-fechar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--cor-texto-claro);
+        }
+        
+        .modal-body {
+            padding: var(--espacamento-lg);
+        }
+        
+        .modal-body .grupo-campo {
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .modal-body label {
+            display: block;
+            margin-bottom: var(--espacamento-xs);
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+        }
+        
+        .modal-body input,
+        .modal-body select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+        }
+        
+        .linha-dupla {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--espacamento-md);
+        }
+        
+        .check-ativo {
+            display: flex;
+            align-items: center;
+            gap: var(--espacamento-sm);
+        }
+        
+        .check-ativo input {
+            width: auto;
+        }
+        
+        .modal-footer {
+            padding: var(--espacamento-lg);
+            border-top: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--espacamento-sm);
+        }
+        
+        .btn-secundario {
+            padding: 10px 20px;
+            border-radius: var(--raio-medio);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .sobre-sistema {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-xl);
+            box-shadow: var(--sombra-card);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .sobre-sistema h3 {
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .sobre-sistema p {
+            color: var(--cor-texto-claro);
+            margin-bottom: var(--espacamento-sm);
+        }
+        
+        @media (max-width: 768px) {
+            .linha-dupla {
+                grid-template-columns: 1fr;
+            }
+            .item-recorrente {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item ativo">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="conteudo">
+            
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1 id="saudacao">Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone" id="nomeUsuario">U</div>
+                </div>
+            </header>
+
+            <section class="area-principal">
+                
+                <h2 style="margin-bottom:24px;">⚙️ Configurações</h2>
+                
+                <!-- Abas -->
+                <div class="abas-nav">
+                    <button class="aba-btn ativa" onclick="mostrarAba('dados')">👤 Meus Dados</button>
+                    <button class="aba-btn" onclick="mostrarAba('recorrencia')">🔄 Contas Recorrentes</button>
+                    <button class="aba-btn" onclick="mostrarAba('sobre')">ℹ️ Sobre</button>
+                </div>
+                
+                <!-- ABA 1: MEUS DADOS -->
+                <div id="aba-dados" class="aba-conteudo ativa">
+                    <div class="card-config">
+                        <h3>👤 Meus Dados</h3>
+                        <div id="alertaDados" class="alertas"></div>
+                        <form id="formDados" onsubmit="salvarDadosUsuario(event)">
+                            <div class="grupo-campo">
+                                <label for="configNome">Nome</label>
+                                <input type="text" id="configNome" required placeholder="Seu nome">
+                            </div>
+                            <div class="grupo-campo">
+                                <label for="configEmail">E-mail</label>
+                                <input type="email" id="configEmail" required placeholder="seu@email.com">
+                            </div>
+                            <hr style="border:none;border-top:1px solid var(--cor-borda);margin:20px 0;">
+                            <p style="color:var(--cor-texto-claro);font-size:12px;margin-bottom:12px;">Deixe em branco para manter a senha atual.</p>
+                            <div class="grupo-campo">
+                                <label for="configSenha">Nova Senha</label>
+                                <input type="password" id="configSenha" placeholder="••••••">
+                            </div>
+                            <div class="grupo-campo">
+                                <label for="configConfirmarSenha">Confirmar Nova Senha</label>
+                                <input type="password" id="configConfirmarSenha" placeholder="••••••">
+                            </div>
+                            <button type="submit" class="btn btn-primario">💾 Salvar Alterações</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- ABA 2: CONTAS RECORRENTES -->
+                <div id="aba-recorrencia" class="aba-conteudo">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                        <div>
+                            <h3 style="font-size:20px;">🔄 Contas Recorrentes</h3>
+                            <p style="color:var(--cor-texto-claro);font-size:14px;">Essas contas são geradas automaticamente pelo botão "Gerar Mês".</p>
+                        </div>
+                        <button class="btn-novo" onclick="abrirModalRecorrente()" style="width:auto;">
+                            <span>➕</span>
+                            <span>Nova Conta Fixa</span>
+                        </button>
+                    </div>
+                    
+                    <div id="alertaRecorrentes" class="alertas"></div>
+                    <div class="lista-recorrentes" id="listaRecorrentes"></div>
+                </div>
+                
+                <!-- ABA 3: SOBRE -->
+                <div id="aba-sobre" class="aba-conteudo">
+                    <div class="sobre-sistema">
+                        <h3>ℹ️ Sobre o Sistema</h3>
+                        <p><strong>Nome:</strong> Meu Financeiro</p>
+                        <p><strong>Versão:</strong> 1.0.0 - Fase 1 (Front-End)</p>
+                        <p><strong>Tecnologias:</strong> HTML5, CSS3, JavaScript Vanilla, LocalStorage</p>
+                        <p><strong>Funcionalidades:</strong> Gestão de lançamentos, calendário de fluxo de caixa, controle de patrimônio, assistente inteligente.</p>
+                        <p style="margin-top:16px; padding-top:16px; border-top:1px solid var(--cor-borda);">
+                            <strong>Próximas fases:</strong> Back-end real, sincronização em nuvem, gráficos avançados, app mobile.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL RECORRENTE -->
+    <div class="modal-overlay" id="modalRecorrente" onclick="if(event.target === this) fecharModalRecorrente()">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3 id="modalRecorrenteTitulo">➕ Nova Conta Recorrente</h3>
+                <button class="btn-fechar" onclick="fecharModalRecorrente()">×</button>
+            </div>
+            <form id="formRecorrente" onsubmit="salvarRecorrente(event)">
+                <input type="hidden" id="recorrenteId">
+                <div class="modal-body">
+                    <div class="grupo-campo">
+                        <label for="campoRecDescricao">Descrição *</label>
+                        <input type="text" id="campoRecDescricao" required placeholder="Ex: Aluguel, Salário, Internet">
+                    </div>
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoRecTipo">Tipo *</label>
+                            <select id="campoRecTipo" required>
+                                <option value="despesa">⬇ Despesa (saída)</option>
+                                <option value="receita">⬆ Receita (entrada)</option>
+                            </select>
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoRecCategoria">Categoria *</label>
+                            <input type="text" id="campoRecCategoria" required placeholder="Ex: Moradia, Salário">
+                        </div>
+                    </div>
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoRecValor">Valor (R$) *</label>
+                            <input type="number" id="campoRecValor" required step="0.01" min="0" placeholder="0,00">
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoRecDia">Dia do Vencimento *</label>
+                            <input type="number" id="campoRecDia" required min="1" max="31" placeholder="10">
+                        </div>
+                    </div>
+                    <div class="check-ativo">
+                        <input type="checkbox" id="campoRecAtivo" checked>
+                        <label for="campoRecAtivo">Conta ativa (será gerada pelo "Gerar Mês")</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secundario" onclick="fecharModalRecorrente()">Cancelar</button>
+                    <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/configuracoes.js"></script>
+</body>
+</html>

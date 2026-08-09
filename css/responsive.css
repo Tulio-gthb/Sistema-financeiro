@@ -1,0 +1,312 @@
+/* ============================================
+   RESPONSIVE.CSS - Ajustes para celular
+   ============================================ */
+
+/* ---------- TABLETS (768px - 1024px) ---------- */
+@media (max-width: 1024px) {
+    .grid-cartoes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---------- CELULAR (até 768px) ---------- */
+@media (max-width: 768px) {
+    
+    /* --- Layout base --- */
+    .conteudo {
+        margin-left: 0;
+    }
+    
+    .cabecalho {
+        padding: 12px 16px;
+        padding-left: 56px; /* espaço para o hambúrguer */
+    }
+    
+    .saudacao h1 {
+        font-size: 18px;
+    }
+    
+    .area-principal {
+        padding: 16px;
+    }
+    
+    /* --- Cards dashboard --- */
+    .grid-cartoes {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .cartao {
+        padding: 16px;
+    }
+    
+    .cartao-valor {
+        font-size: 22px;
+    }
+    
+    /* --- Assistente --- */
+    .assistente {
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    
+    /* --- Calendário --- */
+    .calendario-grade-container {
+        display: none;
+    }
+    
+    .lista-mobile {
+        display: flex;
+    }
+    
+    /* --- Lançamentos --- */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .barra-filtros {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .grupo-filtro {
+        width: 100%;
+    }
+    
+    .grupo-filtro input,
+    .grupo-filtro select {
+        width: 100%;
+    }
+    
+    /* --- Patrimônio --- */
+    .patrimonio-topo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .patrimonio-valor .valor {
+        font-size: 28px;
+    }
+    
+    /* --- Configurações --- */
+    .abas-nav {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .card-config,
+    .sobre-sistema {
+        max-width: 100%;
+    }
+    
+    /* --- Modais --- */
+    .modal-conteudo {
+        max-width: 100%;
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0;
+        margin-top: auto;
+    }
+    
+    .modal-overlay.visivel {
+        align-items: flex-end;
+    }
+    
+    /* --- Tabelas --- */
+    .tabela-container {
+        display: none;
+    }
+    
+    .cards-mobile {
+        display: flex;
+    }
+    
+    /* --- Formulários --- */
+    .linha-dupla {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- CELULAR PEQUENO (até 480px) ---------- */
+@media (max-width: 480px) {
+    
+    .menu-logo {
+        padding: 16px;
+        font-size: 16px;
+    }
+    
+    .menu-item {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .perfil-icone {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .cartao-icone {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+    
+    .btn-novo {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .recorrente-acoes {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .item-recorrente {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .recorrente-acoes {
+        flex-direction: row;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* ---------- FAB - FLOATING ACTION BUTTON ---------- */
+.fab-container {
+    display: none; /* Só aparece no mobile */
+}
+
+@media (max-width: 768px) {
+    .fab-container {
+        display: block;
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 500;
+    }
+    
+    .fab-principal {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: var(--cor-primaria);
+        color: #ffffff;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(26, 54, 93, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .fab-principal:hover {
+        transform: scale(1.1);
+        background-color: var(--cor-primaria-clara);
+    }
+    
+    .fab-principal.ativo {
+        transform: rotate(45deg);
+    }
+    
+    .fab-opcoes {
+        position: absolute;
+        bottom: 68px;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+    }
+    
+    .fab-opcoes.visivel {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+    
+    .fab-opcao {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        white-space: nowrap;
+    }
+    
+    .fab-opcao button {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .fab-opcao.receita button {
+        background-color: var(--cor-receita);
+    }
+    
+    .fab-opcao.despesa button {
+        background-color: var(--cor-despesa);
+    }
+    
+    .fab-opcao span {
+        background-color: var(--cor-texto);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    /* Ajuste para não cobrir conteúdo */
+    .area-principal {
+        padding-bottom: 80px;
+    }
+}
+
+/* ---------- TOUCH FRIENDLY ---------- */
+@media (max-width: 768px) {
+    
+    /* Aumenta área de toque */
+    .menu-item {
+        min-height: 48px;
+    }
+    
+    .btn-acao {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .card-lancamento {
+        padding: 16px;
+    }
+    
+    .card-acoes button {
+        padding: 12px;
+    }
+    
+    /* Remove hover em touch */
+    .cartao:hover,
+    .card-bem:hover,
+    .item-recorrente:hover {
+        box-shadow: var(--sombra-card);
+        transform: none;
+    }
+}
