@@ -1,12 +1,7 @@
 /* ============================================
-   STORAGE.JS - Banco de dados do navegador
-   ============================================
-   Todas as funções de Create, Read, Update e
-   Delete (CRUD) ficam aqui. É como um arquivo
-   que fala com o armário localStorage.
+   STORAGE.JS - Versão robusta com diagnóstico
    ============================================ */
 
-// ---------- NOMES DAS "TABELAS" ----------
 const TABELAS = {
     LANCAMENTOS: 'lancamentos',
     CONTAS_RECORRENTES: 'contasRecorrentes',
@@ -15,63 +10,47 @@ const TABELAS = {
     CONFIG: 'configuracoes'
 };
 
-// ---------- FUNÇÕES BASE (GENÉRICAS) ----------
-
-/**
- * Gera um ID único baseado no horário atual.
- * Exemplo: "1722525600000-847"
- */
 function gerarId() {
     return Date.now().toString() + '-' + Math.floor(Math.random() * 1000);
 }
 
-/**
- * Lê todos os registros de uma tabela.
- * Se a tabela não existir, retorna array vazio.
- */
 function buscarTodos(tabela) {
-    const dados = localStorage.getItem(tabela);
-    return dados ? JSON.parse(dados) : [];
+    try {
+        const dados = localStorage.getItem(tabela);
+        if (!dados) return [];
+        const parsed = JSON.parse(dados);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        console.error('Erro ao ler tabela ' + tabela + ':', e);
+        return [];
+    }
 }
 
-/**
- * Salva um array completo em uma tabela.
- */
 function salvarTodos(tabela, registros) {
-    localStorage.setItem(tabela, JSON.stringify(registros));
+    try {
+        localStorage.setItem(tabela, JSON.stringify(registros));
+    } catch (e) {
+        console.error('Erro ao salvar tabela ' + tabela + ':', e);
+    }
 }
 
-/**
- * Adiciona um novo registro a uma tabela.
- */
 function criar(tabela, registro) {
     const registros = buscarTodos(tabela);
-    registro.id = gerarId();          // Coloca um RG único no registro
-    registro.criadoEm = new Date().toISOString(); // Marca quando foi criado
+    registro.id = gerarId();
+    registro.criadoEm = new Date().toISOString();
     registros.push(registro);
     salvarTodos(tabela, registros);
     return registro;
 }
 
-/**
- * Busca UM registro pelo ID.
- */
 function buscarPorId(tabela, id) {
     const registros = buscarTodos(tabela);
-    return registros.find(function(r) {
-        return r.id === id;
-    });
+    return registros.find(function(r) { return r.id === id; });
 }
 
-/**
- * Atualiza um registro existente pelo ID.
- */
 function atualizar(tabela, id, novosDados) {
     const registros = buscarTodos(tabela);
-    const indice = registros.findIndex(function(r) {
-        return r.id === id;
-    });
-    
+    const indice = registros.findIndex(function(r) { return r.id === id; });
     if (indice !== -1) {
         registros[indice] = Object.assign({}, registros[indice], novosDados);
         registros[indice].atualizadoEm = new Date().toISOString();
@@ -81,167 +60,155 @@ function atualizar(tabela, id, novosDados) {
     return null;
 }
 
-/**
- * Remove um registro pelo ID.
- */
 function remover(tabela, id) {
     const registros = buscarTodos(tabela);
-    const filtrados = registros.filter(function(r) {
-        return r.id !== id;
-    });
+    const filtrados = registros.filter(function(r) { return r.id !== id; });
     salvarTodos(tabela, filtrados);
 }
 
-/**
- * Limpa completamente uma tabela (cuidado!).
- */
-function limparTabela(tabela) {
-    localStorage.removeItem(tabela);
-}
+// ---------- FUNÇÕES ESPECÍFICAS ----------
 
-// ---------- FUNÇÕES ESPECÍFICAS DO SISTEMA ----------
-
-/**
- * Busca lançamentos de um mês/ano específico.
- * tipoFiltro pode ser: 'todos', 'receita', 'despesa'
- */
 function buscarLancamentosPorMes(ano, mes, tipoFiltro) {
-    const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
-    const mesStr = mes.toString().padStart(2, '0'); // "7" vira "07"
-    
-    return lancamentos.filter(function(l) {
-        const dataLanc = new Date(l.data);
-        const anoLanc = dataLanc.getFullYear();
-        const mesLanc = (dataLanc.getMonth() + 1).toString().padStart(2, '0');
+    try {
+        const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
+        const mesStr = mes.toString().padStart(2, '0');
         
-        const mesmoMes = (anoLanc === ano && mesLanc === mesStr);
-        const tipoOk = (tipoFiltro === 'todos') || (l.tipo === tipoFiltro);
-        
-        return mesmoMes && tipoOk;
-    }).sort(function(a, b) {
-        return new Date(a.data) - new Date(b.data); // Ordena por data
-    });
-}
-
-/**
- * Calcula o saldo acumulado até uma data.
- */
-function calcularSaldoAteData(dataLimite) {
-    const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
-    const limite = new Date(dataLimite);
-    
-    let saldo = 0;
-    
-    lancamentos.forEach(function(l) {
-        if (new Date(l.data) <= limite) {
-            if (l.tipo === 'receita') {
-                saldo += parseFloat(l.valor);
-            } else {
-                saldo -= parseFloat(l.valor);
-            }
-        }
-    });
-    
-    return saldo;
-}
-
-/**
- * Calcula totais do mês: receitas, despesas e saldo.
- */
-function calcularTotaisDoMes(ano, mes) {
-    const receitas = buscarLancamentosPorMes(ano, mes, 'receita');
-    const despesas = buscarLancamentosPorMes(ano, mes, 'despesa');
-    
-    const totalReceitas = receitas.reduce(function(soma, r) {
-        return soma + parseFloat(r.valor);
-    }, 0);
-    
-    const totalDespesas = despesas.reduce(function(soma, d) {
-        return soma + parseFloat(d.valor);
-    }, 0);
-    
-    return {
-        receitas: totalReceitas,
-        despesas: totalDespesas,
-        saldo: totalReceitas - totalDespesas,
-        contasPendentes: despesas.filter(function(d) {
-            return d.status === 'pendente';
-        }).length
-    };
-}
-
-/**
- * Busca contas recorrentes ativas.
- */
-function buscarContasRecorrentesAtivas() {
-    const contas = buscarTodos(TABELAS.CONTAS_RECORRENTES);
-    return contas.filter(function(c) {
-        return c.ativo === true;
-    });
-}
-
-/**
- * Busca todos os bens para calcular patrimônio.
- */
-function calcularPatrimonio() {
-    const bens = buscarTodos(TABELAS.BENS);
-    return bens.reduce(function(soma, b) {
-        return soma + parseFloat(b.valorMercado || b.valorAquisicao);
-    }, 0);
-}
-
-// ---------- CONFIGURAÇÕES DO SISTEMA ----------
-
-function obterConfiguracao(chave, padrao) {
-    const configs = buscarTodos(TABELAS.CONFIG);
-    const config = configs.find(function(c) {
-        return c.chave === chave;
-    });
-    return config ? config.valor : padrao;
-}
-
-function salvarConfiguracao(chave, valor) {
-    const configs = buscarTodos(TABELAS.CONFIG);
-    const indice = configs.findIndex(function(c) {
-        return c.chave === chave;
-    });
-    
-    if (indice !== -1) {
-        configs[indice].valor = valor;
-        configs[indice].atualizadoEm = new Date().toISOString();
-    } else {
-        configs.push({
-            id: gerarId(),
-            chave: chave,
-            valor: valor,
-            criadoEm: new Date().toISOString()
+        return lancamentos.filter(function(l) {
+            if (!l.data) return false;
+            const dataLanc = new Date(l.data + 'T00:00:00');
+            const anoLanc = dataLanc.getFullYear();
+            const mesLanc = (dataLanc.getMonth() + 1).toString().padStart(2, '0');
+            
+            const mesmoMes = (anoLanc === ano && mesLanc === mesStr);
+            const tipoOk = (tipoFiltro === 'todos') || (l.tipo === tipoFiltro);
+            
+            return mesmoMes && tipoOk;
+        }).sort(function(a, b) {
+            return new Date(a.data) - new Date(b.data);
         });
+    } catch (e) {
+        console.error('Erro em buscarLancamentosPorMes:', e);
+        return [];
     }
-    
-    salvarTodos(TABELAS.CONFIG, configs);
+}
+
+function calcularSaldoAteData(dataLimite) {
+    try {
+        const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
+        const limite = new Date(dataLimite + 'T00:00:00');
+        let saldo = 0;
+        
+        lancamentos.forEach(function(l) {
+            if (!l.data) return;
+            if (new Date(l.data + 'T00:00:00') <= limite) {
+                if (l.tipo === 'receita') saldo += parseFloat(l.valor || 0);
+                else saldo -= parseFloat(l.valor || 0);
+            }
+        });
+        return saldo;
+    } catch (e) {
+        console.error('Erro em calcularSaldoAteData:', e);
+        return 0;
+    }
+}
+
+function calcularTotaisDoMes(ano, mes) {
+    try {
+        const receitas = buscarLancamentosPorMes(ano, mes, 'receita');
+        const despesas = buscarLancamentosPorMes(ano, mes, 'despesa');
+        
+        const totalReceitas = receitas.reduce(function(soma, r) { return soma + parseFloat(r.valor || 0); }, 0);
+        const totalDespesas = despesas.reduce(function(soma, d) { return soma + parseFloat(d.valor || 0); }, 0);
+        
+        return {
+            receitas: totalReceitas,
+            despesas: totalDespesas,
+            saldo: totalReceitas - totalDespesas,
+            contasPendentes: despesas.filter(function(d) { return d.status === 'pendente'; }).length
+        };
+    } catch (e) {
+        console.error('Erro em calcularTotaisDoMes:', e);
+        return { receitas: 0, despesas: 0, saldo: 0, contasPendentes: 0 };
+    }
+}
+
+function buscarContasRecorrentesAtivas() {
+    try {
+        const contas = buscarTodos(TABELAS.CONTAS_RECORRENTES);
+        return contas.filter(function(c) { return c.ativo === true; });
+    } catch (e) {
+        return [];
+    }
+}
+
+function calcularPatrimonio() {
+    try {
+        const bens = buscarTodos(TABELAS.BENS);
+        return bens.reduce(function(soma, b) { return soma + parseFloat(b.valorMercado || b.valorAquisicao || 0); }, 0);
+    } catch (e) {
+        return 0;
+    }
+}
+
+// ---------- MOTOR DE RECORRÊNCIA ----------
+
+function gerarLancamentosDoMes(ano, mes) {
+    try {
+        const recorrentes = buscarContasRecorrentesAtivas();
+        const mesStr = String(mes).padStart(2, '0');
+        let criados = 0;
+        
+        recorrentes.forEach(function(conta) {
+            const dia = String(conta.diaVencimento || 1).padStart(2, '0');
+            const dataLancamento = ano + '-' + mesStr + '-' + dia;
+            
+            const lancamentosDoMes = buscarLancamentosPorMes(ano, mes, 'todos');
+            const jaExiste = lancamentosDoMes.some(function(l) {
+                return l.descricao === conta.descricao && l.recorrente === true;
+            });
+            
+            if (!jaExiste) {
+                criar(TABELAS.LANCAMENTOS, {
+                    descricao: conta.descricao,
+                    tipo: conta.tipo,
+                    categoria: conta.categoria,
+                    valor: parseFloat(conta.valor || 0),
+                    data: dataLancamento,
+                    status: 'pendente',
+                    fornecedor: conta.fornecedor || '',
+                    recorrente: true,
+                    observacao: 'Gerado automaticamente'
+                });
+                criados++;
+            }
+        });
+        
+        return criados;
+    } catch (e) {
+        console.error('Erro em gerarLancamentosDoMes:', e);
+        return 0;
+    }
 }
 
 // ---------- DADOS DE EXEMPLO ----------
 
-/**
- * Cria dados de exemplo se o banco estiver vazio.
- * Assim, na primeira vez que abrir, o dashboard já tem vida.
- */
 function criarDadosExemplo() {
-    const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
-    
-    // Só cria exemplos se não houver nada
-    if (lancamentos.length === 0) {
+    try {
+        // Só cria se o banco estiver completamente vazio
+        const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
+        if (lancamentos.length > 0) {
+            console.log('ℹ️ Dados já existem. Pulando exemplos.');
+            return;
+        }
+        
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = hoje.getMonth() + 1;
         
-        // Formata data: "2026-07-05"
-        function data(ano, mes, dia) {
-            return ano + '-' + mes.toString().padStart(2, '0') + '-' + dia.toString().padStart(2, '0');
+        function data(a, m, d) {
+            return a + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
         }
         
-        // 1. Salário (receita)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'Salário Mensal',
             tipo: 'receita',
@@ -254,7 +221,6 @@ function criarDadosExemplo() {
             observacao: 'Depósito em conta corrente'
         });
         
-        // 2. Aluguel (despesa fixa)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'Aluguel Apartamento',
             tipo: 'despesa',
@@ -267,7 +233,6 @@ function criarDadosExemplo() {
             observacao: 'Vencimento dia 10'
         });
         
-        // 3. Internet (despesa)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'Internet Fibra 500MB',
             tipo: 'despesa',
@@ -280,7 +245,6 @@ function criarDadosExemplo() {
             observacao: 'Fatura automática no cartão'
         });
         
-        // 4. Supermercado (despesa)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'Compras do Mês - Supermercado',
             tipo: 'despesa',
@@ -293,7 +257,6 @@ function criarDadosExemplo() {
             observacao: 'Compras da semana'
         });
         
-        // 5. Freelance (receita extra)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'Projeto Freelance - Site',
             tipo: 'receita',
@@ -306,7 +269,6 @@ function criarDadosExemplo() {
             observacao: 'Pagamento previsto para dia 20'
         });
         
-        // 6. IPVA do carro (despesa anual/sazonal)
         criar(TABELAS.LANCAMENTOS, {
             descricao: 'IPVA 2026 - Parcela 3/10',
             tipo: 'despesa',
@@ -319,120 +281,75 @@ function criarDadosExemplo() {
             observacao: 'Parcelamento em 10x'
         });
         
-        console.log('✅ Dados de exemplo criados com sucesso!');
-    }
-    
-    // Cria categorias padrão se não existirem
-    const categorias = buscarTodos(TABELAS.CATEGORIAS);
-    if (categorias.length === 0) {
-        const categoriasPadrao = [
-            { nome: 'Salário', tipo: 'receita', cor: '#38a169' },
-            { nome: 'Rendimentos', tipo: 'receita', cor: '#48bb78' },
-            { nome: 'Vendas', tipo: 'receita', cor: '#68d391' },
-            { nome: 'Moradia', tipo: 'despesa', cor: '#e53e3e' },
-            { nome: 'Alimentação', tipo: 'despesa', cor: '#fc8181' },
-            { nome: 'Serviços', tipo: 'despesa', cor: '#f56565' },
-            { nome: 'Veículo', tipo: 'despesa', cor: '#c53030' },
-            { nome: 'Saúde', tipo: 'despesa', cor: '#9b2c2c' },
-            { nome: 'Educação', tipo: 'despesa', cor: '#742a2a' },
-            { nome: 'Lazer', tipo: 'despesa', cor: '#e53e3e' }
-        ];
+        console.log('✅ Dados de exemplo criados!');
         
-        categoriasPadrao.forEach(function(cat) {
-            criar(TABELAS.CATEGORIAS, cat);
-        });
-    }
-    
-    // Cria uma conta recorrente de exemplo
-    const recorrentes = buscarTodos(TABELAS.CONTAS_RECORRENTES);
-    if (recorrentes.length === 0) {
-        criar(TABELAS.CONTAS_RECORRENTES, {
-            descricao: 'Aluguel Apartamento',
-            tipo: 'despesa',
-            categoria: 'Moradia',
-            valor: 1800.00,
-            diaVencimento: 10,
-            frequencia: 'mensal', // mensal, anual, semanal
-            ativo: true
-        });
-        
-        criar(TABELAS.CONTAS_RECORRENTES, {
-            descricao: 'Salário Mensal',
-            tipo: 'receita',
-            categoria: 'Salário',
-            valor: 8500.00,
-            diaVencimento: 5,
-            frequencia: 'mensal',
-            ativo: true
-        });
-    }
-    
-    // Cria um bem de exemplo
-    const bens = buscarTodos(TABELAS.BENS);
-    if (bens.length === 0) {
-        criar(TABELAS.BENS, {
-            nome: 'Apartamento Residencial',
-            tipo: 'Imóvel',
-            valorAquisicao: 350000.00,
-            valorMercado: 420000.00,
-            dataAquisicao: '2020-03-15',
-            observacao: 'Apartamento de 2 quartos, bairro centro'
-        });
-        
-        criar(TABELAS.BENS, {
-            nome: 'Honda Civic 2022',
-            tipo: 'Veículo',
-            valorAquisicao: 95000.00,
-            valorMercado: 78000.00,
-            dataAquisicao: '2022-06-10',
-            observacao: 'Carro particular, revisões em dia'
-        });
-    }
-}
-
-// ---------- MOTOR DE RECORRÊNCIA ----------
-
-/**
- * Gera lançamentos do mês baseado nas contas recorrentes ativas.
- * NÃO duplica se já existir um lançamento com a mesma descrição no mesmo mês.
- */
-function gerarLancamentosDoMes(ano, mes) {
-    const recorrentes = buscarContasRecorrentesAtivas();
-    const mesStr = String(mes).padStart(2, '0');
-    let criados = 0;
-    
-    recorrentes.forEach(function(conta) {
-        // Monta a data: ano-mes-diaVencimento
-        const dia = String(conta.diaVencimento).padStart(2, '0');
-        const dataLancamento = ano + '-' + mesStr + '-' + dia;
-        
-        // Verifica se já existe lançamento com mesma descrição neste mês
-        const lancamentosDoMes = buscarLancamentosPorMes(ano, mes, 'todos');
-        const jaExiste = lancamentosDoMes.some(function(l) {
-            return l.descricao === conta.descricao && l.recorrente === true;
-        });
-        
-        if (!jaExiste) {
-            criar(TABELAS.LANCAMENTOS, {
-                descricao: conta.descricao,
-                tipo: conta.tipo,
-                categoria: conta.categoria,
-                valor: parseFloat(conta.valor),
-                data: dataLancamento,
-                status: 'pendente',
-                fornecedor: conta.fornecedor || '',
-                recorrente: true,
-                observacao: 'Gerado automaticamente pela recorrência'
-            });
-            criados++;
+        // Categorias
+        const categorias = buscarTodos(TABELAS.CATEGORIAS);
+        if (categorias.length === 0) {
+            const padrao = [
+                { nome: 'Salário', tipo: 'receita', cor: '#38a169' },
+                { nome: 'Rendimentos', tipo: 'receita', cor: '#48bb78' },
+                { nome: 'Vendas', tipo: 'receita', cor: '#68d391' },
+                { nome: 'Moradia', tipo: 'despesa', cor: '#e53e3e' },
+                { nome: 'Alimentação', tipo: 'despesa', cor: '#fc8181' },
+                { nome: 'Serviços', tipo: 'despesa', cor: '#f56565' },
+                { nome: 'Veículo', tipo: 'despesa', cor: '#c53030' },
+                { nome: 'Saúde', tipo: 'despesa', cor: '#9b2c2c' },
+                { nome: 'Educação', tipo: 'despesa', cor: '#742a2a' },
+                { nome: 'Lazer', tipo: 'despesa', cor: '#e53e3e' }
+            ];
+            padrao.forEach(function(c) { criar(TABELAS.CATEGORIAS, c); });
         }
-    });
-    
-    return criados; // Retorna quantos foram criados
+        
+        // Contas recorrentes
+        const recorrentes = buscarTodos(TABELAS.CONTAS_RECORRENTES);
+        if (recorrentes.length === 0) {
+            criar(TABELAS.CONTAS_RECORRENTES, {
+                descricao: 'Aluguel Apartamento',
+                tipo: 'despesa',
+                categoria: 'Moradia',
+                valor: 1800.00,
+                diaVencimento: 10,
+                frequencia: 'mensal',
+                ativo: true
+            });
+            criar(TABELAS.CONTAS_RECORRENTES, {
+                descricao: 'Salário Mensal',
+                tipo: 'receita',
+                categoria: 'Salário',
+                valor: 8500.00,
+                diaVencimento: 5,
+                frequencia: 'mensal',
+                ativo: true
+            });
+        }
+        
+        // Bens
+        const bens = buscarTodos(TABELAS.BENS);
+        if (bens.length === 0) {
+            criar(TABELAS.BENS, {
+                nome: 'Apartamento Residencial',
+                tipo: 'Imóvel',
+                valorAquisicao: 350000.00,
+                valorMercado: 420000.00,
+                dataAquisicao: '2020-03-15',
+                observacao: 'Apartamento de 2 quartos, bairro centro'
+            });
+            criar(TABELAS.BENS, {
+                nome: 'Honda Civic 2022',
+                tipo: 'Veículo',
+                valorAquisicao: 95000.00,
+                valorMercado: 78000.00,
+                dataAquisicao: '2022-06-10',
+                observacao: 'Carro particular, revisões em dia'
+            });
+        }
+    } catch (e) {
+        console.error('Erro ao criar dados de exemplo:', e);
+    }
 }
 
 // ---------- INICIALIZAÇÃO ----------
-// Cria os dados de exemplo quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
     criarDadosExemplo();
 });

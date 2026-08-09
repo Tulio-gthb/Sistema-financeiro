@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bens e Patrimônio - Meu Financeiro</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        /* ---------- TOPO DO PATRIMÔNIO ---------- */
+        .patrimonio-topo {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            padding: var(--espacamento-xl);
+            box-shadow: var(--sombra-card);
+            margin-bottom: var(--espacamento-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--espacamento-md);
+        }
+        
+        .patrimonio-info h2 {
+            font-size: var(--tamanho-titulo);
+            color: var(--cor-texto);
+            margin-bottom: var(--espacamento-xs);
+        }
+        
+        .patrimonio-info p {
+            color: var(--cor-texto-claro);
+            font-size: var(--tamanho-texto);
+        }
+        
+        .patrimonio-valor {
+            display: flex;
+            align-items: center;
+            gap: var(--espacamento-md);
+        }
+        
+        .patrimonio-valor .valor {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+        }
+        
+        .patrimonio-valor .valor.oculto {
+            color: var(--cor-texto-claro);
+            letter-spacing: 4px;
+            font-size: 28px;
+}
+        
+        .btn-ocultar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--cor-borda);
+            background: var(--cor-fundo-branco);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-ocultar:hover {
+            background-color: var(--cor-fundo);
+        }
+        
+        /* ---------- GRID DE BENS ---------- */
+        .grid-bens {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--espacamento-lg);
+        }
+        
+        .card-bem {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            box-shadow: var(--sombra-card);
+            padding: var(--espacamento-lg);
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+        
+        .card-bem:hover {
+            box-shadow: var(--sombra-card-hover);
+        }
+        
+        .card-bem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--espacamento-sm);
+        }
+        
+        .card-bem-icone {
+            width: 48px;
+            height: 48px;
+            background-color: #ebf8ff;
+            border-radius: var(--raio-medio);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .card-bem-acoes {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .btn-acao-bem {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--raio-pequeno);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-acao-bem:hover {
+            background-color: var(--cor-fundo);
+        }
+        
+        .btn-excluir-bem:hover {
+            border-color: var(--cor-despesa);
+            color: var(--cor-despesa);
+        }
+        
+        .card-bem-nome {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--cor-texto);
+            margin-bottom: 2px;
+        }
+        
+        .card-bem-tipo {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--espacamento-md);
+            display: block;
+        }
+        
+        .card-bem-dados {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .bem-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bem-label {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+        }
+        
+        .bem-valor {
+            font-weight: 600;
+            font-size: var(--tamanho-texto);
+            color: var(--cor-texto);
+        }
+        
+        .bem-valor.secundario {
+            color: var(--cor-texto-claro);
+            font-weight: 500;
+        }
+        
+        .bem-valor.alerta {
+            color: var(--cor-despesa);
+        }
+        
+        .card-bem-custos {
+            border-top: 1px solid var(--cor-borda);
+            padding-top: var(--espacamento-md);
+        }
+        
+        .sem-custos {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+            font-style: italic;
+        }
+        
+        .mini-custo {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--tamanho-pequeno);
+            padding: 4px 0;
+            border-bottom: 1px dashed var(--cor-borda);
+        }
+        
+        .mais-custos {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-primaria);
+            margin-top: 4px;
+            display: block;
+        }
+        
+        /* ---------- LISTA MOBILE ---------- */
+        .lista-bens-mobile {
+            display: none;
+            flex-direction: column;
+            gap: var(--espacamento-md);
+        }
+        
+        .item-bem-mobile {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            box-shadow: var(--sombra-card);
+            overflow: hidden;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--espacamento-lg);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .item-header:hover {
+            background-color: #f7fafc;
+        }
+        
+        .item-titulo {
+            display: flex;
+            align-items: center;
+            gap: var(--espacamento-md);
+        }
+        
+        .item-icone {
+            font-size: 28px;
+        }
+        
+        .item-titulo div {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .item-titulo strong {
+            font-size: var(--tamanho-texto);
+            color: var(--cor-texto);
+        }
+        
+        .item-titulo small {
+            font-size: var(--tamanho-pequeno);
+            color: var(--cor-texto-claro);
+        }
+        
+        .item-valor {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--cor-primaria);
+        }
+        
+        .item-conteudo {
+            display: none;
+            padding: 0 var(--espacamento-lg) var(--espacamento-lg);
+            border-top: 1px solid var(--cor-borda);
+            animation: slideDown 0.3s ease;
+        }
+        
+        .item-conteudo.aberto {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .item-linha {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--cor-borda);
+            font-size: var(--tamanho-texto);
+        }
+        
+        .item-acoes {
+            display: flex;
+            gap: var(--espacamento-sm);
+            margin-top: var(--espacamento-md);
+        }
+        
+        .item-acoes button {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--raio-pequeno);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            font-size: var(--tamanho-pequeno);
+            cursor: pointer;
+        }
+        
+        .item-acoes button.btn-excluir:hover {
+            border-color: var(--cor-despesa);
+            color: var(--cor-despesa);
+        }
+        
+        .item-custos {
+            margin-top: var(--espacamento-md);
+            padding-top: var(--espacamento-md);
+            border-top: 1px dashed var(--cor-borda);
+        }
+        
+        /* ---------- MODAIS ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--espacamento-md);
+        }
+        
+        .modal-overlay.visivel {
+            display: flex;
+        }
+        
+        .modal-conteudo {
+            background-color: var(--cor-fundo-branco);
+            border-radius: var(--raio-grande);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalEntra 0.3s ease;
+        }
+        
+        @keyframes modalEntra {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: var(--espacamento-lg);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: var(--tamanho-subtitulo);
+            color: var(--cor-texto);
+        }
+        
+        .btn-fechar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--cor-texto-claro);
+        }
+        
+        .modal-body {
+            padding: var(--espacamento-lg);
+        }
+        
+        .modal-body .grupo-campo {
+            margin-bottom: var(--espacamento-md);
+        }
+        
+        .modal-body label {
+            display: block;
+            margin-bottom: var(--espacamento-xs);
+            font-size: var(--tamanho-texto);
+            font-weight: 500;
+            color: var(--cor-texto);
+        }
+        
+        .modal-body input,
+        .modal-body select,
+        .modal-body textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-pequeno);
+            font-size: var(--tamanho-texto);
+            font-family: inherit;
+        }
+        
+        .modal-body input:focus,
+        .modal-body select:focus,
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+        }
+        
+        .linha-dupla {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--espacamento-md);
+        }
+        
+        .modal-footer {
+            padding: var(--espacamento-lg);
+            border-top: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--espacamento-sm);
+        }
+        
+        .btn-secundario {
+            padding: 10px 20px;
+            border-radius: var(--raio-medio);
+            border: 1px solid var(--cor-borda);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .mensagem-vazio {
+            text-align: center;
+            padding: 48px;
+            color: var(--cor-texto-claro);
+            grid-column: 1 / -1;
+        }
+        
+        /* ---------- RESPONSIVIDADE ---------- */
+        @media (max-width: 768px) {
+            .grid-bens {
+                display: none;
+            }
+            .lista-bens-mobile {
+                display: flex;
+            }
+            .patrimonio-topo {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .patrimonio-valor .valor {
+                font-size: 28px;
+            }
+            .linha-dupla {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-menu-mobile" id="btnMenuMobile" onclick="toggleMenu()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="pagina">
+        
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral" id="menuLateral">
+            <div class="menu-logo">
+                <span class="icone">💰</span>
+                <span>Meu Financeiro</span>
+            </div>
+            <nav class="menu-links">
+                <a href="dashboard.html" class="menu-item">
+                    <span class="icone">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="calendario.html" class="menu-item">
+                    <span class="icone">📅</span>
+                    <span>Calendário</span>
+                </a>
+                <a href="lancamentos.html" class="menu-item">
+                    <span class="icone">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="patrimonio.html" class="menu-item ativo">
+                    <span class="icone">🏠</span>
+                    <span>Bens e Patrimônio</span>
+                </a>
+                <a href="configuracoes.html" class="menu-item">
+                    <span class="icone">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+            <div class="menu-rodape">
+                <button class="btn-sair" onclick="sair()">
+                    <span class="icone">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="conteudo">
+            
+            <header class="cabecalho">
+                <div class="saudacao">
+                    <h1 id="saudacao">Bom dia, Usuário</h1>
+                    <p id="dataAtual">Carregando data...</p>
+                </div>
+                <div class="perfil">
+                    <div class="perfil-icone" id="nomeUsuario">U</div>
+                </div>
+            </header>
+
+            <section class="area-principal">
+                
+                <!-- Topo: Patrimônio Total -->
+                <div class="patrimonio-topo">
+                    <div class="patrimonio-info">
+                        <h2>🏠 Bens e Patrimônio</h2>
+                        <p>Patrimônio Líquido Total (Valor de Mercado)</p>
+                    </div>
+                    <div class="patrimonio-valor">
+                        <span class="valor" id="patrimonioTotal">R$ 0,00</span>
+                        <button class="btn-ocultar" id="btnOlho" onclick="toggleVisibilidade()" title="Mostrar/Ocultar valores">👁️</button>
+                    </div>
+                </div>
+                
+                <!-- Botão Novo Bem -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <p style="color:var(--cor-texto-claro); font-size:14px;">
+                            Total Investido: <strong id="totalInvestido" style="color:var(--cor-texto);">R$ 0,00</strong> | 
+                            Custos: <strong id="totalCustos" style="color:var(--cor-despesa);">R$ 0,00</strong>
+                        </p>
+                    </div>
+                    <button class="btn-novo" onclick="abrirModalBem()" style="width:auto;">
+                        <span>➕</span>
+                        <span>Novo Bem</span>
+                    </button>
+                </div>
+                
+                <!-- Grid Desktop -->
+                <div class="grid-bens" id="gridBens"></div>
+                
+                <!-- Lista Mobile -->
+                <div class="lista-bens-mobile" id="listaBensMobile"></div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL BEM -->
+    <div class="modal-overlay" id="modalBem" onclick="if(event.target === this) fecharModalBem()">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3 id="modalBemTitulo">➕ Novo Bem</h3>
+                <button class="btn-fechar" onclick="fecharModalBem()">×</button>
+            </div>
+            <form id="formBem">
+                <div class="modal-body">
+                    <div class="grupo-campo">
+                        <label for="campoBemNome">Nome do Bem *</label>
+                        <input type="text" id="campoBemNome" required placeholder="Ex: Apartamento, Carro, Notebook">
+                    </div>
+                    <div class="grupo-campo">
+                        <label for="campoBemTipo">Tipo *</label>
+                        <select id="campoBemTipo" required>
+                            <option value="Imóvel">🏠 Imóvel</option>
+                            <option value="Veículo">🚗 Veículo</option>
+                            <option value="Investimento">📈 Investimento</option>
+                            <option value="Equipamento">💻 Equipamento</option>
+                            <option value="Joia">💍 Joia/Relógio</option>
+                            <option value="Outro">📦 Outro</option>
+                        </select>
+                    </div>
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoBemAquisicao">Valor de Aquisição (R$) *</label>
+                            <input type="number" id="campoBemAquisicao" required step="0.01" min="0" placeholder="0,00">
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoBemMercado">Valor de Mercado Atual (R$)</label>
+                            <input type="number" id="campoBemMercado" step="0.01" min="0" placeholder="Deixe em branco se for igual">
+                        </div>
+                    </div>
+                    <div class="grupo-campo">
+                        <label for="campoBemData">Data de Aquisição *</label>
+                        <input type="date" id="campoBemData" required>
+                    </div>
+                    <div class="grupo-campo">
+                        <label for="campoBemObs">Observação</label>
+                        <textarea id="campoBemObs" rows="2" placeholder="Notas sobre o bem..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secundario" onclick="fecharModalBem()">Cancelar</button>
+                    <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTO -->
+    <div class="modal-overlay" id="modalCusto" onclick="if(event.target === this) fecharModalCusto()">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3>➕ Adicionar Custo</h3>
+                <p style="color:var(--cor-texto-claro); font-size:12px; margin-top:4px;">Bem: <strong id="custoBemNome"></strong></p>
+                <button class="btn-fechar" onclick="fecharModalCusto()" style="position:absolute; top:16px; right:16px;">×</button>
+            </div>
+            <form id="formCusto">
+                <div class="modal-body">
+                    <div class="grupo-campo">
+                        <label for="campoCustoDescricao">Descrição do Custo *</label>
+                        <input type="text" id="campoCustoDescricao" required placeholder="Ex: Reforma, Manutenção, Pintura">
+                    </div>
+                    <div class="linha-dupla">
+                        <div class="grupo-campo">
+                            <label for="campoCustoValor">Valor (R$) *</label>
+                            <input type="number" id="campoCustoValor" required step="0.01" min="0" placeholder="0,00">
+                        </div>
+                        <div class="grupo-campo">
+                            <label for="campoCustoData">Data *</label>
+                            <input type="date" id="campoCustoData" required>
+                        </div>
+                    </div>
+                    <div class="grupo-campo">
+                        <label for="campoCustoObs">Observação</label>
+                        <input type="text" id="campoCustoObs" placeholder="Detalhes...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secundario" onclick="fecharModalCusto()">Cancelar</button>
+                    <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar Custo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/patrimonio.js"></script>
+</body>
+</html>

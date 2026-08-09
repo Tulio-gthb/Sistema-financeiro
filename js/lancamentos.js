@@ -1,5 +1,5 @@
 /* ============================================
-   LANCAMENTOS.JS - Controle da tela de lançamentos
+   LANCAMENTOS.JS - Com diagnóstico de debug
    ============================================ */
 
 let lancamentosAtuais = [];
@@ -7,16 +7,21 @@ let lancamentoEditando = null;
 
 // ---------- INICIALIZAÇÃO ----------
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Lancamentos.js carregado');
+    
     try {
         preencherFiltros();
         carregarLancamentos();
     } catch (erro) {
-        console.error('Erro ao inicializar lançamentos:', erro);
+        console.error('❌ Erro na inicialização:', erro);
     }
     
     const form = document.getElementById('formLancamento');
     if (form) {
         form.addEventListener('submit', salvarLancamento);
+        console.log('✅ Formulário do modal configurado');
+    } else {
+        console.error('❌ Formulário #formLancamento NÃO ENCONTRADO no HTML!');
     }
 });
 
@@ -28,20 +33,22 @@ function carregarLancamentos() {
     const elStatus = document.getElementById('filtroStatus');
     const elBusca = document.getElementById('filtroBusca');
     
-    // Proteção: se os elementos não existirem, sai
-    if (!elAno || !elMes) return;
+    if (!elAno || !elMes) {
+        console.error('❌ Filtros de ano/mês não encontrados!');
+        return;
+    }
     
     const ano = parseInt(elAno.value) || new Date().getFullYear();
     const mes = parseInt(elMes.value) || (new Date().getMonth() + 1);
     const status = elStatus ? elStatus.value : 'todos';
     const busca = elBusca ? elBusca.value.toLowerCase() : '';
     
+    console.log('🔍 Buscando lançamentos:', ano, mes, status);
+    
     let lista = buscarLancamentosPorMes(ano, mes, 'todos');
     
     if (status !== 'todos') {
-        lista = lista.filter(function(l) {
-            return l.status === status;
-        });
+        lista = lista.filter(function(l) { return l.status === status; });
     }
     
     if (busca) {
@@ -55,6 +62,8 @@ function carregarLancamentos() {
     }
     
     lancamentosAtuais = lista;
+    console.log('📊 Encontrados:', lista.length, 'lançamentos');
+    
     renderizarTabela();
     renderizarCardsMobile();
     atualizarResumoFiltros();
@@ -62,7 +71,10 @@ function carregarLancamentos() {
 
 function renderizarTabela() {
     const tbody = document.getElementById('tabelaLancamentos');
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('❌ tbody #tabelaLancamentos não encontrado!');
+        return;
+    }
     
     tbody.innerHTML = '';
     
@@ -72,15 +84,13 @@ function renderizarTabela() {
     }
     
     lancamentosAtuais.forEach(function(l) {
-        const tr = document.createElement('tr');
-        tr.className = 'linha-lancamento';
-        
         const corValor = l.tipo === 'receita' ? 'receita' : 'despesa';
         const sinal = l.tipo === 'receita' ? '+' : '-';
         const iconeStatus = (l.status === 'pago' || l.status === 'recebido') ? '✅' : '⏳';
         const textoStatus = (l.status === 'pago' || l.status === 'recebido') ? 'Pago' : 'Pendente';
         const iconeRecorrente = l.recorrente ? ' 🔄' : '';
         
+        const tr = document.createElement('tr');
         tr.innerHTML = 
             '<td>' + formatarDataBR(l.data) + '</td>' +
             '<td><strong>' + escaparHTML(l.descricao) + '</strong>' + iconeRecorrente + '</td>' +
@@ -155,27 +165,42 @@ function atualizarResumoFiltros() {
 // ---------- MODAL ----------
 
 function abrirModal(id) {
+    console.log('📝 Abrindo modal. ID para editar:', id);
+    
     const modal = document.getElementById('modalLancamento');
     const titulo = document.getElementById('modalTitulo');
     const form = document.getElementById('formLancamento');
     
-    if (!modal || !titulo || !form) return;
+    if (!modal || !titulo || !form) {
+        console.error('❌ Elementos do modal não encontrados!');
+        return;
+    }
     
     lancamentoEditando = id || null;
     
     if (id) {
         const l = buscarPorId(TABELAS.LANCAMENTOS, id);
-        if (!l) return;
+        if (!l) {
+            console.error('❌ Lançamento com ID', id, 'não encontrado no banco!');
+            return;
+        }
+        
+        console.log('📋 Dados do lançamento para editar:', l);
         
         titulo.textContent = '✏️ Editar Lançamento';
-        document.getElementById('campoDescricao').value = l.descricao;
-        document.getElementById('campoTipo').value = l.tipo;
-        document.getElementById('campoCategoria').value = l.categoria;
-        document.getElementById('campoValor').value = l.valor;
-        document.getElementById('campoData').value = l.data;
+        document.getElementById('campoDescricao').value = l.descricao || '';
+        document.getElementById('campoTipo').value = l.tipo || 'despesa';
+        document.getElementById('campoCategoria').value = l.categoria || '';
+        document.getElementById('campoValor').value = l.valor || '';
+        document.getElementById('campoData').value = l.data || '';
         document.getElementById('campoFornecedor').value = l.fornecedor || '';
-        document.getElementById('campoStatus').value = l.status;
-        document.getElementById('campoRecorrente').checked = l.recorrente || false;
+        document.getElementById('campoStatus').value = l.status || 'pendente';
+        
+        // ⭐ AQUI ESTÁ A CORREÇÃO IMPORTANTE
+        const checkboxRecorrente = document.getElementById('campoRecorrente');
+        checkboxRecorrente.checked = (l.recorrente === true);
+        console.log('☑️ Checkbox recorrente setado para:', checkboxRecorrente.checked);
+        
         document.getElementById('campoObservacao').value = l.observacao || '';
     } else {
         titulo.textContent = '➕ Novo Lançamento';
@@ -186,42 +211,62 @@ function abrirModal(id) {
         const mes = (document.getElementById('filtroMes').value || (hoje.getMonth() + 1)).toString().padStart(2, '0');
         const dia = hoje.getDate().toString().padStart(2, '0');
         document.getElementById('campoData').value = ano + '-' + mes + '-' + dia;
-        
         document.getElementById('campoStatus').value = 'pendente';
+        document.getElementById('campoRecorrente').checked = false;
+        lancamentoEditando = null;
     }
     
     modal.classList.add('visivel');
+    console.log('✅ Modal aberto');
 }
 
 function fecharModal() {
     const modal = document.getElementById('modalLancamento');
     if (modal) modal.classList.remove('visivel');
     lancamentoEditando = null;
+    console.log('🚪 Modal fechado');
 }
 
 function salvarLancamento(evento) {
     evento.preventDefault();
+    console.log('💾 Botão Salvar clicado! Editando ID:', lancamentoEditando);
     
-    const dados = {
-        descricao: document.getElementById('campoDescricao').value.trim(),
-        tipo: document.getElementById('campoTipo').value,
-        categoria: document.getElementById('campoCategoria').value,
-        valor: parseFloat(document.getElementById('campoValor').value),
-        data: document.getElementById('campoData').value,
-        fornecedor: document.getElementById('campoFornecedor').value.trim(),
-        status: document.getElementById('campoStatus').value,
-        recorrente: document.getElementById('campoRecorrente').checked,
-        observacao: document.getElementById('campoObservacao').value.trim()
-    };
-    
-    if (lancamentoEditando) {
-        atualizar(TABELAS.LANCAMENTOS, lancamentoEditando, dados);
-    } else {
-        criar(TABELAS.LANCAMENTOS, dados);
+    try {
+        const checkboxRecorrente = document.getElementById('campoRecorrente');
+        console.log('☑️ Estado do checkbox recorrente:', checkboxRecorrente.checked);
+        
+        const dados = {
+            descricao: document.getElementById('campoDescricao').value.trim(),
+            tipo: document.getElementById('campoTipo').value,
+            categoria: document.getElementById('campoCategoria').value,
+            valor: parseFloat(document.getElementById('campoValor').value),
+            data: document.getElementById('campoData').value,
+            fornecedor: document.getElementById('campoFornecedor').value.trim(),
+            status: document.getElementById('campoStatus').value,
+            recorrente: checkboxRecorrente.checked,  // ⭐ PEGA O TRUE/FALSE REAL
+            observacao: document.getElementById('campoObservacao').value.trim()
+        };
+        
+        console.log('📦 Dados a salvar:', dados);
+        
+        if (lancamentoEditando) {
+            console.log('🔄 Modo: ATUALIZAR ID', lancamentoEditando);
+            const resultado = atualizar(TABELAS.LANCAMENTOS, lancamentoEditando, dados);
+            console.log('✅ Resultado da atualização:', resultado);
+        } else {
+            console.log('➕ Modo: CRIAR NOVO');
+            const resultado = criar(TABELAS.LANCAMENTOS, dados);
+            console.log('✅ Resultado da criação:', resultado);
+        }
+        
+        fecharModal();
+        carregarLancamentos();
+        console.log('🎉 Tela recarregada com sucesso!');
+        
+    } catch (erro) {
+        console.error('❌ ERRO AO SALVAR:', erro);
+        alert('Ocorreu um erro ao salvar. Veja o console (F12) para detalhes.');
     }
-    
-    fecharModal();
-    carregarLancamentos();
 }
 
 // ---------- AÇÕES RÁPIDAS ----------
@@ -239,7 +284,7 @@ function toggleStatus(id) {
 }
 
 function excluirLancamento(id) {
-    if (confirm('Tem certeza que deseja excluir este lançamento? Esta ação não pode ser desfeita.')) {
+    if (confirm('Tem certeza que deseja excluir este lançamento?')) {
         remover(TABELAS.LANCAMENTOS, id);
         carregarLancamentos();
     }
@@ -250,7 +295,6 @@ function excluirLancamento(id) {
 function preencherFiltros() {
     const hoje = new Date();
     
-    // Ano
     const selectAno = document.getElementById('filtroAno');
     if (selectAno) {
         selectAno.innerHTML = '';
@@ -263,13 +307,11 @@ function preencherFiltros() {
         });
     }
     
-    // Mês
     const selectMes = document.getElementById('filtroMes');
     if (selectMes) {
         selectMes.value = hoje.getMonth() + 1;
     }
     
-    // Categorias no modal
     const selectCat = document.getElementById('campoCategoria');
     if (selectCat) {
         const categorias = buscarTodos(TABELAS.CATEGORIAS);
@@ -284,7 +326,6 @@ function preencherFiltros() {
         if (valorAtual) selectCat.value = valorAtual;
     }
     
-    // Botão "Gerar Mês"
     adicionarBotaoGerarMes();
 }
 
@@ -308,7 +349,7 @@ function adicionarBotaoGerarMes() {
             alert('✅ ' + quantidade + ' lançamento(s) recorrente(s) gerado(s) para ' + mesesNomes[mes] + '/' + ano + '!');
             carregarLancamentos();
         } else {
-            alert('ℹ️ Nenhuma conta recorrente nova para gerar em ' + mesesNomes[mes] + '/' + ano + '. Todos já existem!');
+            alert('ℹ️ Nenhuma conta recorrente nova para gerar em ' + mesesNomes[mes] + '/' + ano + '.');
         }
     };
     
