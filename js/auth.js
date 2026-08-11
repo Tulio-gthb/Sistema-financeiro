@@ -7,8 +7,8 @@
 // ---------- CONFIGURAÇÕES ----------
 const TEMPO_TIMEOUT = 15 * 60 * 1000; // 15 minutos em milissegundos
 const USUARIO_PADRAO = {
-    nome: 'Usuário',
-    email: 'usuario@email.com',
+    nome: 'Tulio',
+    email: 'tuliohostalacio@gmail.com',
     senha: '1015'                     // Senha fixa inicial (como na planilha)
 };
 

@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Meu Financeiro</title>
+
+        <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Fonte Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    
     <!-- CSS base -->
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">  <!-- ADICIONE ESTA LINHA -->
+    <link rel="stylesheet" href="css/responsive.css">
     
     <!-- CSS específico do dashboard -->
     <style>
@@ -179,11 +183,11 @@
             <!-- Cabeçalho -->
             <header class="cabecalho">
                 <div class="saudacao">
-                    <h1 id="saudacao">Bom dia, Usuário</h1>
+                    <h1 id="saudacao">Bom dia, Tulio</h1>
                     <p id="dataAtual">Carregando data...</p>
                 </div>
                 <div class="perfil">
-                    <div class="perfil-icone" id="nomeUsuario">U</div>
+                    <div class="perfil-icone">🤑</div>
                 </div>
             </header>
 
@@ -220,12 +224,25 @@
                     </div>
                 </div>
 
-                <!-- Gráfico (placeholder) -->
-                <div class="secao-grafico">
-                    <h3>Receitas vs Despesas - Mês Atual</h3>
-                    <div class="grafico-placeholder" id="graficoPlaceholder">
-                        📊 Gráfico será inserido aqui na próxima etapa (Chart.js)
+                <!-- Gráficos -->
+                <div class="grid-graficos" style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+                    
+                    <!-- Gráfico 1: Receitas vs Despesas -->
+                    <div class="secao-grafico">
+                        <h3>📊 Receitas vs Despesas</h3>
+                        <div style="position:relative; height:280px;">
+                            <canvas id="graficoBarras"></canvas>
+                        </div>
                     </div>
+                    
+                    <!-- Gráfico 2: Evolução do Saldo -->
+                    <div class="secao-grafico">
+                        <h3>📈 Evolução do Saldo</h3>
+                        <div style="position:relative; height:280px;">
+                            <canvas id="graficoLinha"></canvas>
+                        </div>
+                    </div>
+                    
                 </div>
 
             </section>
