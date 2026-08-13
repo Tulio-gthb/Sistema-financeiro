@@ -185,16 +185,13 @@ function renderizarMiniCustos(custos) {
     }
     
     let html = '<strong>Histórico de custos:</strong>';
-    custos.slice(0, 3).forEach(function(c) {
+    custos.forEach(function(c) {
         html += 
-            '<div class="mini-custo">' +
-                '<span>' + escaparHTML(c.descricao) + '</span>' +
-                '<span>' + formatarMoeda(c.valor) + '</span>' +
-            '</div>';
+           '<div class="mini-custo">' +
+               '<span>' + escaparHTML(c.descricao) + '</span>' +
+               '<span>' + formatarMoeda(c.valor) + '</span>' +
+           '</div>';
     });
-    if (custos.length > 3) {
-        html += '<span class="mais-custos">+' + (custos.length - 3) + ' custos...</span>';
-    }
     return html;
 }
 
