@@ -439,6 +439,24 @@
                             </div>
                             <button type="submit" class="btn btn-primario">💾 Salvar Alterações</button>
                         </form>
+                                                <!-- BACKUP -->
+                        <hr style="border:none;border-top:1px solid var(--cor-borda);margin:24px 0;">
+                        <h3 style="margin-bottom:12px;">💾 Backup e Restauração</h3>
+                        <p style="color:var(--cor-texto-claro);font-size:14px;margin-bottom:16px;">
+                            Exporte seus dados para fazer backup ou transfira para outro dispositivo.
+                        </p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                            <button type="button" class="btn btn-primario" onclick="exportarDados()" style="width:auto;">
+                                ⬇️ Exportar Dados
+                            </button>
+                            <button type="button" class="btn-secundario" onclick="document.getElementById('inputImportar').click()" style="width:auto;">
+                                ⬆️ Importar Dados
+                            </button>
+                            <button type="button" class="btn-secundario" onclick="limparTodosDados()" style="width:auto;border-color:var(--cor-despesa);color:var(--cor-despesa);">
+                                🗑️ Limpar Tudo
+                            </button>
+                        </div>
+                        <input type="file" id="inputImportar" accept=".json" style="display:none;" onchange="importarDados(event)">
                     </div>
                 </div>
                 

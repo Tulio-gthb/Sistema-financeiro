@@ -235,6 +235,85 @@ function escaparHTMLConfig(texto) {
     return div.innerHTML;
 }
 
+// ---------- BACKUP E RESTAURAÇÃO ----------
+
+function exportarDados() {
+    const chaves = [
+        'lancamentos',
+        'contasRecorrentes',
+        'bens',
+        'custosBens',        // ← ADICIONADO
+        'categorias',
+        'configuracoes',
+        'usuarios',
+        'dadosExemploCriados'
+    ];
+    
+    const backup = {};
+    chaves.forEach(function(chave) {
+        const valor = localStorage.getItem(chave);
+        if (valor !== null) backup[chave] = valor;
+    });
+    
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_financeiro_' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importarDados(evento) {
+    const arquivo = evento.target.files[0];
+    if (!arquivo) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const backup = JSON.parse(e.target.result);
+            const chavesEsperadas = [
+                'lancamentos',
+                'contasRecorrentes',
+                'bens',
+                'custosBens',        // ← ADICIONADO
+                'categorias',
+                'configuracoes',
+                'usuarios'
+            ];
+            let count = 0;
+            
+            chavesEsperadas.forEach(function(chave) {
+                if (backup[chave] !== undefined) {
+                    localStorage.setItem(chave, backup[chave]);
+                    count++;
+                }
+            });
+            
+            if (backup.dadosExemploCriados !== undefined) {
+                localStorage.setItem('dadosExemploCriados', backup.dadosExemploCriados);
+            }
+            
+            alert('✅ Dados importados com sucesso! ' + count + ' tabelas restauradas. A página será recarregada.');
+            location.reload();
+        } catch (err) {
+            alert('❌ Erro ao importar: o arquivo não é um JSON válido.');
+            console.error(err);
+        }
+    };
+    reader.readAsText(arquivo);
+}
+
+function limparTodosDados() {
+    if (confirm('⚠️ ATENÇÃO: Isso apagará TODOS os dados permanentemente. Tem certeza?')) {
+        localStorage.clear();
+        alert('🗑️ Todos os dados foram apagados. A página será recarregada.');
+        location.reload();
+    }
+}
+
 // ---------- NAVEGAÇÃO ENTRE ABAS ----------
 
 function mostrarAba(aba) {
