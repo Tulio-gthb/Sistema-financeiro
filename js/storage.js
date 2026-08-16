@@ -157,16 +157,22 @@ function gerarLancamentosDoMes(ano, mes) {
         const recorrentes = buscarContasRecorrentesAtivas();
         const mesStr = String(mes).padStart(2, '0');
         let criados = 0;
-        
+
         recorrentes.forEach(function(conta) {
+            // Se for anual, só gera se o mês bater
+            if (conta.frequencia === 'anual') {
+                const mesConta = parseInt(conta.mesVencimento || 0);
+                if (mesConta !== mes) return; // Pula se não for o mês certo
+            }
+
             const dia = String(conta.diaVencimento || 1).padStart(2, '0');
             const dataLancamento = ano + '-' + mesStr + '-' + dia;
-            
+
             const lancamentosDoMes = buscarLancamentosPorMes(ano, mes, 'todos');
             const jaExiste = lancamentosDoMes.some(function(l) {
                 return l.descricao === conta.descricao && l.recorrente === true;
             });
-            
+
             if (!jaExiste) {
                 criar(TABELAS.LANCAMENTOS, {
                     descricao: conta.descricao,
@@ -182,7 +188,7 @@ function gerarLancamentosDoMes(ano, mes) {
                 criados++;
             }
         });
-        
+
         return criados;
     } catch (e) {
         console.error('Erro em gerarLancamentosDoMes:', e);
@@ -194,96 +200,99 @@ function gerarLancamentosDoMes(ano, mes) {
 
 function criarDadosExemplo() {
     try {
-        // Só cria se o banco estiver completamente vazio
-        const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
-        if (lancamentos.length > 0) {
-            console.log('ℹ️ Dados já existem. Pulando exemplos.');
+        // Se já criou exemplos alguma vez, NUNCA mais cria
+        if (localStorage.getItem('dadosExemploCriados') === 'sim') {
+            console.log('ℹ️ Dados de exemplo já foram criados anteriormente. Pulando.');
             return;
         }
-        
+
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = hoje.getMonth() + 1;
-        
+
         function data(a, m, d) {
             return a + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
         }
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'Salário Mensal',
-            tipo: 'receita',
-            categoria: 'Salário',
-            valor: 8500.00,
-            data: data(ano, mes, 5),
-            status: 'recebido',
-            fornecedor: 'Empresa ABC Ltda',
-            recorrente: true,
-            observacao: 'Depósito em conta corrente'
-        });
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'Aluguel Apartamento',
-            tipo: 'despesa',
-            categoria: 'Moradia',
-            valor: 1800.00,
-            data: data(ano, mes, 10),
-            status: 'pago',
-            fornecedor: 'Imobiliária Central',
-            recorrente: true,
-            observacao: 'Vencimento dia 10'
-        });
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'Internet Fibra 500MB',
-            tipo: 'despesa',
-            categoria: 'Serviços',
-            valor: 129.90,
-            data: data(ano, mes, 15),
-            status: 'pendente',
-            fornecedor: 'Provedor Net',
-            recorrente: true,
-            observacao: 'Fatura automática no cartão'
-        });
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'Compras do Mês - Supermercado',
-            tipo: 'despesa',
-            categoria: 'Alimentação',
-            valor: 1450.00,
-            data: data(ano, mes, 8),
-            status: 'pago',
-            fornecedor: 'Supermercado Bom Preço',
-            recorrente: false,
-            observacao: 'Compras da semana'
-        });
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'Projeto Freelance - Site',
-            tipo: 'receita',
-            categoria: 'Rendimentos',
-            valor: 2500.00,
-            data: data(ano, mes, 20),
-            status: 'pendente',
-            fornecedor: 'Cliente XYZ',
-            recorrente: false,
-            observacao: 'Pagamento previsto para dia 20'
-        });
-        
-        criar(TABELAS.LANCAMENTOS, {
-            descricao: 'IPVA 2026 - Parcela 3/10',
-            tipo: 'despesa',
-            categoria: 'Veículo',
-            valor: 320.50,
-            data: data(ano, mes, 25),
-            status: 'pendente',
-            fornecedor: 'Detran',
-            recorrente: false,
-            observacao: 'Parcelamento em 10x'
-        });
-        
-        console.log('✅ Dados de exemplo criados!');
-        
-        // Categorias
+
+        // Só cria lançamentos se estiver completamente vazio
+        const lancamentos = buscarTodos(TABELAS.LANCAMENTOS);
+        if (lancamentos.length === 0) {
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'Salário Mensal',
+                tipo: 'receita',
+                categoria: 'Salário',
+                valor: 8500.00,
+                data: data(ano, mes, 5),
+                status: 'recebido',
+                fornecedor: 'Empresa ABC Ltda',
+                recorrente: true,
+                observacao: 'Depósito em conta corrente'
+            });
+
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'Aluguel Apartamento',
+                tipo: 'despesa',
+                categoria: 'Moradia',
+                valor: 1800.00,
+                data: data(ano, mes, 10),
+                status: 'pago',
+                fornecedor: 'Imobiliária Central',
+                recorrente: true,
+                observacao: 'Vencimento dia 10'
+            });
+
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'Internet Fibra 500MB',
+                tipo: 'despesa',
+                categoria: 'Serviços',
+                valor: 129.90,
+                data: data(ano, mes, 15),
+                status: 'pendente',
+                fornecedor: 'Provedor Net',
+                recorrente: true,
+                observacao: 'Fatura automática no cartão'
+            });
+
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'Compras do Mês - Supermercado',
+                tipo: 'despesa',
+                categoria: 'Alimentação',
+                valor: 1450.00,
+                data: data(ano, mes, 8),
+                status: 'pago',
+                fornecedor: 'Supermercado Bom Preço',
+                recorrente: false,
+                observacao: 'Compras da semana'
+            });
+
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'Projeto Freelance - Site',
+                tipo: 'receita',
+                categoria: 'Rendimentos',
+                valor: 2500.00,
+                data: data(ano, mes, 20),
+                status: 'pendente',
+                fornecedor: 'Cliente XYZ',
+                recorrente: false,
+                observacao: 'Pagamento previsto para dia 20'
+            });
+
+            criar(TABELAS.LANCAMENTOS, {
+                descricao: 'IPVA 2026 - Parcela 3/10',
+                tipo: 'despesa',
+                categoria: 'Veículo',
+                valor: 320.50,
+                data: data(ano, mes, 25),
+                status: 'pendente',
+                fornecedor: 'Detran',
+                recorrente: false,
+                observacao: 'Parcelamento em 10x'
+            });
+
+            console.log('✅ Dados de exemplo criados!');
+        }
+
+        // Categorias (só se vazio)
         const categorias = buscarTodos(TABELAS.CATEGORIAS);
         if (categorias.length === 0) {
             const padrao = [
@@ -300,8 +309,8 @@ function criarDadosExemplo() {
             ];
             padrao.forEach(function(c) { criar(TABELAS.CATEGORIAS, c); });
         }
-        
-        // Contas recorrentes
+
+        // Contas recorrentes (só se vazio)
         const recorrentes = buscarTodos(TABELAS.CONTAS_RECORRENTES);
         if (recorrentes.length === 0) {
             criar(TABELAS.CONTAS_RECORRENTES, {
@@ -323,8 +332,8 @@ function criarDadosExemplo() {
                 ativo: true
             });
         }
-        
-        // Bens
+
+        // Bens (só se vazio)
         const bens = buscarTodos(TABELAS.BENS);
         if (bens.length === 0) {
             criar(TABELAS.BENS, {
@@ -344,6 +353,10 @@ function criarDadosExemplo() {
                 observacao: 'Carro particular, revisões em dia'
             });
         }
+
+        // MARCA QUE JÁ RODOU — assim nunca mais recria nada
+        localStorage.setItem('dadosExemploCriados', 'sim');
+
     } catch (e) {
         console.error('Erro ao criar dados de exemplo:', e);
     }

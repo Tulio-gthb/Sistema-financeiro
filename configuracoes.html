@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - Meu Financeiro</title>
+    <link rel="shortcut icon" type="image/png" href="Imagem/logo.ico">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -483,46 +484,72 @@
                 <h3 id="modalRecorrenteTitulo">➕ Nova Conta Recorrente</h3>
                 <button class="btn-fechar" onclick="fecharModalRecorrente()">×</button>
             </div>
-            <form id="formRecorrente" onsubmit="salvarRecorrente(event)">
-                <input type="hidden" id="recorrenteId">
-                <div class="modal-body">
-                    <div class="grupo-campo">
-                        <label for="campoRecDescricao">Descrição *</label>
-                        <input type="text" id="campoRecDescricao" required placeholder="Ex: Aluguel, Salário, Internet">
-                    </div>
-                    <div class="linha-dupla">
+                <form id="formRecorrente" onsubmit="salvarRecorrente(event)">
+                    <input type="hidden" id="recorrenteId">
+                    <div class="modal-body">
                         <div class="grupo-campo">
-                            <label for="campoRecTipo">Tipo *</label>
-                            <select id="campoRecTipo" required>
-                                <option value="despesa">⬇ Despesa (saída)</option>
-                                <option value="receita">⬆ Receita (entrada)</option>
-                            </select>
+                            <label for="campoRecDescricao">Descrição *</label>
+                            <input type="text" id="campoRecDescricao" required placeholder="Ex: Aluguel, Salário...">
                         </div>
-                        <div class="grupo-campo">
-                            <label for="campoRecCategoria">Categoria *</label>
-                            <input type="text" id="campoRecCategoria" required placeholder="Ex: Moradia, Salário">
+                        <div class="linha-dupla">
+                            <div class="grupo-campo">
+                                <label for="campoRecTipo">Tipo *</label>
+                                <select id="campoRecTipo" required>
+                                    <option value="despesa">⬇ Despesa (saída)</option>
+                                    <option value="receita">⬆ Receita (entrada)</option>
+                                </select>
+                            </div>
+                            <div class="grupo-campo">
+                                <label for="campoRecCategoria">Categoria *</label>
+                                <input type="text" id="campoRecCategoria" required placeholder="Ex: Moradia, Salário...">
+                            </div>
+                        </div>
+                        <div class="linha-dupla">
+                            <div class="grupo-campo">
+                                <label for="campoRecValor">Valor (R$) *</label>
+                                <input type="number" id="campoRecValor" required step="0.01" min="0" placeholder="0,00">
+                            </div>
+                            <div class="grupo-campo">
+                                <label for="campoRecDia">Dia do Vencimento *</label>
+                                <input type="number" id="campoRecDia" required min="1" max="31" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="linha-dupla">
+                            <div class="grupo-campo">
+                                <label for="campoRecFrequencia">Frequência *</label>
+                                <select id="campoRecFrequencia" required onchange="toggleMesVencimento()">
+                                    <option value="mensal">🔄 Mensal</option>
+                                    <option value="anual">📅 Anual</option>
+                                </select>
+                            </div>
+                            <div class="grupo-campo" id="grupoRecMes" style="display:none;">
+                                <label for="campoRecMes">Mês do Vencimento *</label>
+                                <select id="campoRecMes" required>
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="check-ativo">
+                            <input type="checkbox" id="campoRecAtivo" checked>
+                            <label for="campoRecAtivo">Conta ativa (será gerada pelo "Gerar Mês")</label>
                         </div>
                     </div>
-                    <div class="linha-dupla">
-                        <div class="grupo-campo">
-                            <label for="campoRecValor">Valor (R$) *</label>
-                            <input type="number" id="campoRecValor" required step="0.01" min="0" placeholder="0,00">
-                        </div>
-                        <div class="grupo-campo">
-                            <label for="campoRecDia">Dia do Vencimento *</label>
-                            <input type="number" id="campoRecDia" required min="1" max="31" placeholder="10">
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secundario" onclick="fecharModalRecorrente()">Cancelar</button>
+                        <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar</button>
                     </div>
-                    <div class="check-ativo">
-                        <input type="checkbox" id="campoRecAtivo" checked>
-                        <label for="campoRecAtivo">Conta ativa (será gerada pelo "Gerar Mês")</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secundario" onclick="fecharModalRecorrente()">Cancelar</button>
-                    <button type="submit" class="btn btn-primario" style="width:auto;">💾 Salvar</button>
-                </div>
-            </form>
+                </form>
         </div>
     </div>
 
